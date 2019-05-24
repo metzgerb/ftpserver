@@ -293,19 +293,13 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	int dataConn;
 	char dataPort[20];
 	char command[3];
-	char fileName[256];
+	
 
 	//separate command from file name
 	memcpy(command, message, 2);
 	printf("copied command: %s\n", command);
 	command[2] = '\0';
 	printf("Parsed cmd: %s\n", command);
-
-	//TODO:may need to check if command should have file name
-	//memcpy(fileName, &message[2], messageLen - 2);
-	//fileName[255] = '\0';
-	//printf("Parsed filename: %s\n", fileName);
-	printf("%d", strcmp(command, "-l"));
 
 	//parse command and send command confirmation
 	if (strcmp(command, "-l") == 0 || strcmp(command, "-g") == 0)
@@ -321,6 +315,14 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 
 		printf("Data connection success!\n");
 
+		//TODO:may need to check if command should have file name
+		//char fileName[256];
+		//memcpy(fileName, &message[2], messageLen - 2);
+		//fileName[255] = '\0';
+		//printf("Parsed filename: %s\n", fileName);
+
+		printf("%d", strcmp(command, "-l"));
+
 		close(dataConn);
 
 	}
@@ -328,7 +330,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	{
 		//send error code with error message
 		printf("Error parsing command\n");
-		sendMsg(socketPtr, "0");
+		sendMsg(socketPtr, "0Invalid command");
 	}
 	
 
