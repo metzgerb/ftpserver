@@ -27,7 +27,7 @@ void error(const char *msg);
 int setupServer(int portNumber);
 int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr);
-int recvMsg(int socketPtr, char* message);
+int recvMsg(int socketPtr, char* message, int messageLen);
 
 
 int main(int argc, char *argv[])
@@ -84,13 +84,13 @@ int main(int argc, char *argv[])
 		
 		//receive hostname for data connection
 		recvMsg(controlConn, remoteHost);
-		printf("Host received: %s\n", remoteHost);
+		printf("Host received: %s\n", remoteHost, sizeof(remoteHost));
 
 		//receive port number for data connection
-		recvMsg(controlConn, dataPort);
+		recvMsg(controlConn, dataPort, sizeof(dataPort));
 		printf("Data Port received: %s\n", dataPort);
 
-		connectServer(remoteHost, atoi(dataPort));
+		dataConn = connectServer(remoteHost, atoi(dataPort));
 
 		printf("Control connection success!\n");
 
@@ -129,8 +129,6 @@ int setupServer(int portNumber)
 {
 	int socketPtr;
 	struct sockaddr_in serverAddress;
-	struct hostent* serverHostInfo;
-	char serverName[256];
 
 	// Set up the server address struct
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
@@ -281,13 +279,13 @@ int sendMsg(int socketPtr)
  * Description: The function receives a message from the client and parses it
  *		to determine what course of action to take
  ******************************************************************************/
-int recvMsg(int socketPtr, char* message)
+int recvMsg(int socketPtr, char* message, int messageLen)
 {
 	char buffer[BUFFER_SIZE];
 	int charsRead;
 
 	memset(buffer, '\0', sizeof(buffer));
-	memset(message, '\0', sizeof(message));
+	memset(message, '\0', messageLen);
 
 	// Get return message from server
 	while (strstr(buffer, SENTINEL) == NULL)
