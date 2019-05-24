@@ -295,6 +295,9 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	char command[3];
 	char fileName[256];
 
+	memset(fileName, '\0', sizeof(fileName));
+	memset(fileName, '\0', sizeof(fileName));
+
 	//separate command from file name
 	memcpy(command, message, 2);
 	printf("copied command: %s\n", command);
