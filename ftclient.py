@@ -128,7 +128,7 @@ def main(server, control_port, data_port):
     print("Control connection successful")
     
     #send hostname for data connection to control connection
-    send_msg(control_socket, SENTINEL, socket.gethostname())
+    send_msg(control_socket, SENTINEL, gethostname())
     print("sent: %s\n" % socket.gethostname())
     #send port number for data connection to control connection
     send_msg(control_socket,SENTINEL, str(data_port))
