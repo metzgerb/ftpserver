@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 		}
 
 		//parse and output client name (Source: https://beej.us/guide/bgnet/html/multi/getnameinfoman.html)
-		getnameinfo(&clientAddress, sizeOfClientInfo, client, sizeof(client), service, sizeof(service),0)
+		getnameinfo(&clientAddress, sizeOfClientInfo, client, sizeof(client), service, sizeof(service), 0);
 		printf("Connection from %s\n", client);
 		
 		//receive command for data connection
