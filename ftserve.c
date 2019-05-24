@@ -217,6 +217,9 @@ int sendMsg(int socketPtr, char* buffer)
 	strcpy(message, buffer);
 	strcat(message, SENTINEL);
 
+	//temp to debug
+	printf("message sent: %s\n", message);
+
 	// Send message to server
 	long length = strlen(message) + 1;
 	char* sendPtr = message;
@@ -293,10 +296,12 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	char fileName[256];
 
 	//separate command from file name
-	memcpy(command, &message, 2);
+	memcpy(command, message, 2);
+	printf("copied command: %s\n", command);
 	command[2] = '\0';
 	printf("Parsed cmd: %s\n", command);
 
+	//TODO:may need to check if command should have file name
 	memcpy(fileName, &message[2], messageLen - 2);
 	fileName[255] = '\0';
 	printf("Parsed filename: %s\n", fileName);
