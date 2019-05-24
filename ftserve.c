@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	socklen_t sizeOfClientInfo;
 	struct sockaddr_in clientAddress;
 
-	//char command[MAX_BUFFER];
+	char command[MAX_BUFFER];
 	char remoteHost[MAX_BUFFER];
 	char dataPort[20];
 	
@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
 	{
 		//begin listening on socket (up to 5 concurrent)
 		listen(socketFD, 5);
+		printf("Server open on %s\n", argv[1]);
 
 		//accept a connection
 		sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
@@ -80,19 +81,24 @@ int main(int argc, char *argv[])
 			error("ERROR on accept");
 		}
 
-		printf("Control connection success!\n");
+		//output client host
+		printf("Connection from %s\n", clientAddress);
 		
+		//receive command for data connection
+		recvMsg(controlConn, command, sizeof(command));
+		printf("command recd: \n", command);
+
 		//receive hostname for data connection
 		recvMsg(controlConn, remoteHost, sizeof(remoteHost));
-		printf("Host received: %s\n", remoteHost);
+		printf("host recd: \n", remoteHost);
 
 		//receive port number for data connection
 		recvMsg(controlConn, dataPort, sizeof(dataPort));
-		printf("Data Port received: %s\n", dataPort);
+		printf("port recd: \n", dataPort);
 
 		dataConn = connectServer(remoteHost, atoi(dataPort));
 
-		printf("Control connection success!\n");
+		printf("Data connection success!\n");
 
 		close(dataConn);
 		close(controlConn); // Close the existing socket which is connected to the client

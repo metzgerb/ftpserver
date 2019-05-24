@@ -119,47 +119,63 @@ Description: controls the main logic of the program
 Inputs: takes remote server host, the connection port number and data port number
 Outputs: returns nothing
 """
-def main(server, control_port, data_port):
+def main(server, control_port, data_port, command, file_name = ""):
     #define initial variables
     SENTINEL = "@!@"
     
     #connect to server on control connection
     control_socket = connect_server(server,control_port)
-    print("Control connection successful")
     
-    #send hostname for data connection to control connection
-    send_msg(control_socket, SENTINEL, gethostname())
-    print("sent: %s\n" % gethostname())
-    #send port number for data connection to control connection
-    send_msg(control_socket,SENTINEL, str(data_port))
-    print("sent: %s\n" % str(data_port))
+    #send command to control connection and receive response
+    send_msg(control_socket, SENTINEL, command + file_name)
     
-    #set up data server
-    data_socket = setup_server(data_port)
-    print("Data connection successful")
     
-    #send command to control connection
-    #receive response to command on control connection
-    #receive response/data on data connection
-    #do something with response
-    data_socket.close()
+    if(True):
+        #send hostname for data connection to control connection
+        send_msg(control_socket, SENTINEL, gethostname())
+
+        #send port number for data connection to control connection
+        send_msg(control_socket,SENTINEL, str(data_port))
+    
+        #set up data server
+        data_socket = setup_server(data_port)
+
+        #do something based on command provided
+        print("Data Connection success")
+        
+        #close data socket
+        data_socket.close()
+        
+    #close socket connection
     control_socket.close()
 
 """
 Description: intial code that validates the commandline arguments used
     and calls the other functions to create the connections and save files
-Inputs: takes 3 arguments (server name, control port number, data port number)
+Inputs: takes 4 or 5 arguments (server name, control port number, data port number, command, [file name])
 Outputs: returns nothing
 """
 if __name__ == "__main__":
     #check total argument count
-    if len(sys.argv) != 4:
-        print("USAGE: %s server control_port data_port" % sys.argv[0])
-    #check that port number is actually a number
+    if len(sys.argv) != 5 and len(sys.argv) != 6:
+        print("USAGE: %s server control_port data_port -command [file_name]" % sys.argv[0])
+    #check that control port number is actually a number
     elif not sys.argv[2].isdigit():
         print("syntax error: control_port must be a number")
+    #check that data port is actually a number
     elif not sys.argv[3].isdigit():
         print("syntax error: data_port must be a number")
+    elif sys.argv[2] == sys.argv[3]:
+        print("syntax error: control_port and data_port cannot be the same port")
+    #check that correct commands are used
+    elif sys.argv[4] not in ["-g", "-l"]:
+        print("syntax error: command not recognized. Only use '-l' or '-g'")
+    #check that file name provided with get command
+    elif len(sys.argv) == 5 and sys.argv[4] == "-g":
+        print("syntax error: no file name provided with '-g' command")
     #everything is ok, call main function
     else:
-        main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
+        if len(sys.argv) == 5:
+            main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4])
+        else:
+            main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4], sys.argv[5])
