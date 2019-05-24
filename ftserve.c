@@ -305,6 +305,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	memcpy(fileName, &message[2], messageLen - 2);
 	fileName[255] = '\0';
 	printf("Parsed filename: %s\n", fileName);
+	printf("%d", strcmp(command, "-l"));
 
 	//parse command and send command confirmation
 	if (strcmp(command, "-l") == 0 || strcmp(command, "-g") == 0)
