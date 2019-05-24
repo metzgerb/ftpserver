@@ -88,7 +88,7 @@ def connect_server(server, port_number):
     
     #set up client socket
     client_socket = socket(AF_INET, SOCK_STREAM)
-    client_socket.connect(server, port_number)
+    client_socket.connect((server, port_number))
     
     #continuously receive and send messages
     """while True:
