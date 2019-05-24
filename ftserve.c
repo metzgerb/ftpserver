@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 
 	char command[MAX_BUFFER];
 	char client[MAX_BUFFER];
+	char service[20];
 
 	
 	//check for correct number of arguments
@@ -287,7 +288,6 @@ int recvMsg(int socketPtr, char* message, int messageLen)
 void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 {
 	int dataConn;
-	char service[20];
 	char dataPort[20];
 	char command[3];
 	char fileName[256];
