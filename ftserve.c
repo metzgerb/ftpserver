@@ -38,6 +38,8 @@ int main(int argc, char *argv[])
 
 	char command[MAX_BUFFER];
 	char remoteHost[MAX_BUFFER];
+	char client[MAX_BUFFER];
+	char service[20];
 	char dataPort[20];
 	
 	//check for correct number of arguments
@@ -81,20 +83,21 @@ int main(int argc, char *argv[])
 			error("ERROR on accept");
 		}
 
-		//output client host
-		printf("Connection from %s\n", clientAddress);
+		//parse and output client name (Source: https://beej.us/guide/bgnet/html/multi/getnameinfoman.html)
+		getnameinfo(&clientAddress, sizeOfClientInfo, client, sizeof(client), service, sizeof(service),0)
+		printf("Connection from %s\n", client);
 		
 		//receive command for data connection
 		recvMsg(controlConn, command, sizeof(command));
-		printf("command recd: \n", command);
+		printf("command recd: %s\n", command);
 
 		//receive hostname for data connection
 		recvMsg(controlConn, remoteHost, sizeof(remoteHost));
-		printf("host recd: \n", remoteHost);
+		printf("host recd: %s\n", remoteHost);
 
 		//receive port number for data connection
 		recvMsg(controlConn, dataPort, sizeof(dataPort));
-		printf("port recd: \n", dataPort);
+		printf("port recd: %s\n", dataPort);
 
 		dataConn = connectServer(remoteHost, atoi(dataPort));
 
