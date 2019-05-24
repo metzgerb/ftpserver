@@ -18,7 +18,7 @@ import sys
 Function Name: send_msg
 Description: sends a message to the server
 Inputs: takes a socket file descriptor, a message and a sentinel
-Outputs: 
+Outputs: returns success code or quit code
 """
 def send_msg(socket, sentinel):
     #get input from user
@@ -83,34 +83,45 @@ Outputs: returns a socket file descriptor to be used in later steps
 """
 def connect_server(server, port_number):
     #initialize values
-    MAX_BUFFER = 700
-    SENTINEL = "@!@"
+    #MAX_BUFFER = 700
+    #SENTINEL = "@!@"
     
     #set up client socket
-    client_socket = socket(AF_INET, SOCK_STREAM)
-    client_socket.connect((server, port_number))
+    new_socket = socket(AF_INET, SOCK_STREAM)
+    new_socket.connect((server, port_number))
     
     #continuously receive and send messages
-    """while True:
+    #while True:
         #receive a message from client
-        recd_message = recv_msg(connection_socket, SENTINEL, 700)
+        #recd_message = recv_msg(connection_socket, SENTINEL, 700)
             
         #check if received message was quit command
-        if recd_message == -1:
-            break
-            
-        #send message to client
-        send_message = send_msg(connection_socket, SENTINEL)
+        #if recd_message == -1:
+        #    break
+        
+        #send message to server
+        #send_message = send_msg(new_socket, SENTINEL)
             
         #check if sent message was quit command
-        if send_message == -1:
-            break"""
-    print("Connection successful")
+        #if send_message == -1:
+            #break
+    #print("Connection successful")
      
     #close connection
-    client_socket.close()
-        
+    #new_socket.close()
+    return new_socket
 
+def main(server, control_port, data_port):
+    #connect to server
+    control_socket = connect_server(server,control_port)
+    print("Connection successful")
+    #if successful, set up data server
+    control_socket.close()
+    #send port number for data connection to control connection
+    #send command to control connection
+    #receive response to command on control connection
+    #receive response/data on data connection
+    #do something with response
 
 """
 Description: main code that validates the commandline arguments used
@@ -120,11 +131,14 @@ Outputs: possibly downloads files from server
 """
 if __name__ == "__main__":
     #check total argument count
-    if len(sys.argv) != 3:
-        print("USAGE: %s server port" % sys.argv[0])
+    if len(sys.argv) != 4:
+        print("USAGE: %s server control_port data_port" % sys.argv[0])
     #check that port number is actually a number
     elif not sys.argv[2].isdigit():
-        print("syntax error: port must be a number")
-    #everything is ok, call server setup
+        print("syntax error: control_port must be a number")
+    elif not sys.argv[3].isdigit():
+        print("syntax error: data_port must be a number")
+    #everything is ok, call main function
     else:
-        connect_server(sys.argv[1], int(sys.argv[2]));
+        #connect_server(sys.argv[1], int(sys.argv[2]))
+        main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))

@@ -6,7 +6,7 @@
 * Author: Brian Metzger (metzgerb@oregonstate.edu)
 * Course: CS372 (Spring 2019)
 * Created: 2019-05-18
-* Last Modified: 2019-05-18
+* Last Modified: 2019-05-24
 ******************************************************************************/
 
 #include <stdio.h>
@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
 	}
 
 	//loop while accepting clients
-	//while (1)
-	//{
+	while (1)
+	{
 		//begin listening on socket (up to 5 concurrent)
 		listen(socketFD, 5);
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
 		close(serverConn); // Close the existing socket which is connected to the client
 		
-	//}
+	}
 
 	close(socketFD); // Close the socket
 
@@ -118,18 +118,8 @@ int setupServer(int portNumber)
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
 	serverAddress.sin_family = AF_INET; // Create a network-capable socket
 	serverAddress.sin_port = htons(portNumber); // Store the port number
-	//gethostname(serverName);
 	serverAddress.sin_addr.s_addr = INADDR_ANY; // Convert the machine name into a special form of address
 	
-	//check if server info could not be obtained
-	//if (serverHostInfo == NULL) 
-	//{ 
-	//	return -3;
-	//}
-
-	// Copy in the address
-	//memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)serverHostInfo->h_addr_list[0], serverHostInfo->h_length); 
-
 	// Set up the socket
 	socketPtr = socket(AF_INET, SOCK_STREAM, 0); // Create the socket
 
