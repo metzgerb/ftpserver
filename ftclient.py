@@ -7,7 +7,7 @@ Description: Runs as a simple file transfer client to connect to a server and
 Author: Brian Metzger (metzgerb@oregonstate.edu)
 Course: CS372 (Spring 2019)
 Created: 2019-05-18
-Last Modified: 2019-05-18
+Last Modified: 2019-05-24
 """
 
 from socket import *
@@ -127,4 +127,4 @@ if __name__ == "__main__":
         print("syntax error: port must be a number")
     #everything is ok, call server setup
     else:
-        connect_server(server, int(sys.argv[1]));
+        connect_server(sys.argv[1], int(sys.argv[2]));

@@ -54,6 +54,10 @@ int main(int argc, char *argv[])
 	{
 		error("ERROR binding on port");
 	}
+	else if (socketFD == -3)
+	{
+		error("ERROR No such host");
+	}
 
 	//loop while accepting clients
 	//while (1)
@@ -108,17 +112,19 @@ int setupServer(int portNumber)
 	int socketPtr;
 	struct sockaddr_in serverAddress;
 	struct hostent* serverHostInfo;
+	char serverName[256];
 
 	// Set up the server address struct
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
 	serverAddress.sin_family = AF_INET; // Create a network-capable socket
 	serverAddress.sin_port = htons(portNumber); // Store the port number
-	serverHostInfo = gethostname(); // Convert the machine name into a special form of address
+	gethostname(serverName);
+	serverHostInfo = serverName; // Convert the machine name into a special form of address
 	
 	//check if server info could not be obtained
 	if (serverHostInfo == NULL) 
 	{ 
-		error("# CLIENT: ERROR, no such host\n"); 
+		return -3;
 	}
 
 	// Copy in the address
