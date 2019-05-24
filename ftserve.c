@@ -134,7 +134,7 @@ int setupServer(int portNumber)
 	}
 
 	// Connect to server and check that connection was successful
-	if (bind(socketPtr, (struct sockaddr *)&serverAddress, sizeof(serverAddress))
+	if (bind(socketPtr, (struct sockaddr *)&serverAddress, sizeof(serverAddress)))
 	{
 		return -2;
 	}
