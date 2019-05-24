@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	socklen_t sizeOfClientInfo;
 	struct sockaddr_in clientAddress;
 
-	char command[MAX_BUFFER];
+	//char command[MAX_BUFFER];
 	char remoteHost[MAX_BUFFER];
 	char dataPort[20];
 	
@@ -83,8 +83,8 @@ int main(int argc, char *argv[])
 		printf("Control connection success!\n");
 		
 		//receive hostname for data connection
-		recvMsg(controlConn, remoteHost);
-		printf("Host received: %s\n", remoteHost, sizeof(remoteHost));
+		recvMsg(controlConn, remoteHost, sizeof(remoteHost));
+		printf("Host received: %s\n", remoteHost);
 
 		//receive port number for data connection
 		recvMsg(controlConn, dataPort, sizeof(dataPort));
