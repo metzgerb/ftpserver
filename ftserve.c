@@ -295,7 +295,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	char command[3];
 	char fileName[256];
 
-	memset(fileName, '\0', sizeof(fileName));
+	memset(command, '\0', sizeof(command));
 	memset(fileName, '\0', sizeof(fileName));
 
 	//separate command from file name
