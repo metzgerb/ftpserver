@@ -26,22 +26,20 @@
 void error(const char *msg);
 int setupServer(int portNumber);
 int connectServer(char* server, int portNumber);
-int sendMsg(int socketPtr);
+int sendMsg(int socketPtr, char* buffer);
 int recvMsg(int socketPtr, char* message, int messageLen);
-void parseCmd(int socketPtr, char* message, int messageLen);
+void parseCmd(int socketPtr, char* client, char* message, int messageLen);
 
 
 int main(int argc, char *argv[])
 {
-	int socketFD, controlConn, dataConn;
+	int socketFD, controlConn;
 	socklen_t sizeOfClientInfo;
 	struct sockaddr_in clientAddress;
 
 	char command[MAX_BUFFER];
-	char remoteHost[MAX_BUFFER];
 	char client[MAX_BUFFER];
-	char service[20];
-	char dataPort[20];
+
 	
 	//check for correct number of arguments
 	if (argc != 2) 
@@ -93,7 +91,7 @@ int main(int argc, char *argv[])
 		printf("command recd: %s\n", command);
 
 		//parse command and respond to client
-		parseCmd(controlConn, command, sizeof(command));
+		parseCmd(controlConn, client, command, sizeof(command));
 
 		close(controlConn); // Close the existing socket which is connected to the client
 		
@@ -213,7 +211,6 @@ int connectServer(char* server, int portNumber)
 int sendMsg(int socketPtr, char* buffer)
 {
 	char message[MAX_BUFFER];
-	int charsWritten;
 	
 	//copy sentinel to message
 	strcpy(message, buffer);
@@ -282,17 +279,20 @@ int recvMsg(int socketPtr, char* message, int messageLen)
 
 /******************************************************************************
  * Function name: parseCmd
- * Inputs: Takes the control socket and command
+ * Inputs: Takes the control socket and command message
  * Outputs: nothing
  * Description: The function parses the command received from the client and 
  *		either sends a directory listing, sends a file, or send an error.
  ******************************************************************************/
-void parseCmd(int socketPtr, char* message, int messageLen)
+void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 {
-	//separate command from file name
+	int dataConn;
+	char service[20];
+	char dataPort[20];
 	char command[3];
 	char fileName[256];
 
+	//separate command from file name
 	memcpy(command, &message, 2);
 	command[2] = '\0';
 	printf("Parsed cmd: %s\n", command);
@@ -308,7 +308,7 @@ void parseCmd(int socketPtr, char* message, int messageLen)
 		sendMsg(socketPtr, "1");
 
 		//receive port number for data connection
-		recvMsg(controlConn, dataPort, sizeof(dataPort));
+		recvMsg(socketPtr, dataPort, sizeof(dataPort));
 		printf("port recd: %s\n", dataPort);
 
 		dataConn = connectServer(client, atoi(dataPort));
