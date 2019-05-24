@@ -25,8 +25,9 @@
 //function declarations
 void error(const char *msg);
 int setupServer(int portNumber);
+int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr);
-int recvMsg(int socketPtr);
+int recvMsg(int socketPtr, char* message);
 
 
 int main(int argc, char *argv[])
