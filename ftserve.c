@@ -24,68 +24,61 @@
 
 //function declarations
 void error(const char *msg);
-int setupServer(char* server, int portNumber);
-int sendMsg(int socketPtr, char handle[]);
+int setupServer(int portNumber);
+int sendMsg(int socketPtr);
 int recvMsg(int socketPtr);
 
 
 int main(int argc, char *argv[])
 {
-	int socketFD, msgResult;
-	char handle[11];
-    
+	int socketFD, serverConn;
+	socklen_t sizeOfClientInfo;
+	struct sockaddr_in clientAddress;
+
 	//check for correct number of arguments
-	if (argc < 3) 
+	if (argc != 2) 
 	{ 
-		fprintf(stderr,"USAGE: %s hostname port\n", argv[0]); 
+		fprintf(stderr,"USAGE: %s port\n", argv[0]); 
 		exit(0); 
 	}
 
 	//create socket and connect to server
-	socketFD = connectServer(argv[1], atoi(argv[2]));
+	socketFD = setupServer(atoi(argv[1]));
 
 	//check for socket/connection errors
 	if (socketFD == -1)
 	{
-		error("# CLIENT: ERROR opening socket");
+		error("ERROR opening socket");
 	}
 	else if (socketFD == -2)
 	{
-		error("# CLIENT: ERROR connecting");
+		error("ERROR binding on port %s", argv[1]);
 	}
 
-	//get handle from user
-	printf("Enter a handle: ");
-	fflush(stdout);
-	memset(handle, '\0', sizeof(handle)); // Clear out the buffer array
-	fgets(handle, sizeof(handle) - 1, stdin); // Get input from the user, trunc to buffer - 1 chars, leaving \0
-	handle[strcspn(handle, "\n")] = '\0'; // Remove the trailing \n that fgets adds
+	//loop while accepting clients
+	//while (1)
+	//{
+		//begin listening on socket (up to 5 concurrent)
+		listen(socketFD, 5);
 
-	//loop while sending and receiving messages
-	while (1)
-	{
-		//receive a message from the server
-		msgResult = sendMsg(socketFD, handle);
-
-		//check for a quit command indicator
-		if (msgResult == 1)
-		{
-			//move to close the connection
-			break;
-		}
-
-		//receive a message from the server
-		msgResult = recvMsg(socketFD);
+		//accept a connection
+		sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
+		serverConn = accept(socketFD, (struct sockaddr *)&clientAddress, &sizeOfClientInfo); // Accept
 		
-		//check for a quit command indicator
-		if (msgResult == 1)
+		//check for accept error
+		if (serverConn < 0)
 		{
-			//move to close the connection
-			break;
+			error("ERROR on accept");
 		}
-	}
+
+		printf("Successful connection!\n");
+
+		close(establishedConnectionFD); // Close the existing socket which is connected to the client
+		
+	//}
 
 	close(socketFD); // Close the socket
+
 	return 0;
 }
 
@@ -104,11 +97,11 @@ void error(const char *msg)
 
 
 /******************************************************************************
- * Function name: connectServer
+ * Function name: setupServer
  * Inputs: Takes port number to listen on
- * Outputs: 
- * Description: The function sets up a server to listen on a specific port and 
-		waits to receive commands from connected clients.
+ * Outputs: Returns socket file descriptor for server
+ * Description: The function sets up a server to be ready to listen on a 
+ *		specific port.
  ******************************************************************************/
 int setupServer(int portNumber)
 {
@@ -120,7 +113,7 @@ int setupServer(int portNumber)
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
 	serverAddress.sin_family = AF_INET; // Create a network-capable socket
 	serverAddress.sin_port = htons(portNumber); // Store the port number
-	serverHostInfo = gethostbyname(server); // Convert the machine name into a special form of address
+	serverHostInfo = gethostname(); // Convert the machine name into a special form of address
 	
 	//check if server info could not be obtained
 	if (serverHostInfo == NULL) 
@@ -141,7 +134,7 @@ int setupServer(int portNumber)
 	}
 
 	// Connect to server and check that connection was successful
-	if (connect(socketPtr, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0)
+	if (bind(socketPtr, (struct sockaddr *)&serverAddress, sizeof(serverAddress))
 	{
 		return -2;
 	}
@@ -157,7 +150,7 @@ int setupServer(int portNumber)
  * Description: The function sends a message to the client. It is generic and
  *		can be used to send any type of message
  ******************************************************************************/
-int sendMsg(int socketPtr, char handle[])
+int sendMsg(int socketPtr)
 {
 	char buffer[BUFFER_SIZE];
 	char message[MAX_BUFFER];
@@ -193,8 +186,7 @@ int sendMsg(int socketPtr, char handle[])
 
 	//prepend handle to message
 	memset(message, '\0', sizeof(message)); // Clear out the message array
-	strcpy(message, handle);
-	strcat(message, "> ");
+	strcpy(message, "> ");
 	strcat(message, buffer);
 	strcat(message, SENTINEL);
 

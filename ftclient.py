@@ -20,9 +20,9 @@ Description: sends a message to the server
 Inputs: takes a socket file descriptor, a message and a sentinel
 Outputs: 
 """
-def send_msg(socket, handle, sentinel):
+def send_msg(socket, sentinel):
     #get input from user
-    message = input(handle)
+    message = input()
             
     #check if message is "\quit"
     if message == "\\quit":
@@ -32,7 +32,7 @@ def send_msg(socket, handle, sentinel):
         return -1          
     else: 
         #send message back
-        message = handle + message + sentinel
+        message = message + sentinel
         socket.sendall(message.encode())
         return 0
 
@@ -81,41 +81,34 @@ Description: attempts to establish a control connection to the server on the spe
 Inputs: takes the host name and port number of the server
 Outputs: returns a socket file descriptor to be used in later steps
 """
-def connect_server(port_number):
+def connect_server(server, port_number):
     #initialize values
     MAX_BUFFER = 700
     SENTINEL = "@!@"
-    server_handle = "CHATSERVE> "
     
-    #set up server socket
-    server_socket = socket(AF_INET, SOCK_STREAM)
-    server_socket.bind(('', port_number))
+    #set up client socket
+    client_socket = socket(AF_INET, SOCK_STREAM)
+    client_socket,connect(server, port_number)
     
-    #continuously listen for a connection
-    while True:
-        server_socket.listen(1)
-        
-        #accept connection
-        connection_socket, addr = server_socket.accept()
-
-        #continuously receive and send messages
-        while True:
-            #receive a message from client
-            recd_message = recv_msg(connection_socket, SENTINEL, 700)
+    #continuously receive and send messages
+    """while True:
+        #receive a message from client
+        recd_message = recv_msg(connection_socket, SENTINEL, 700)
             
-            #check if received message was quit command
-            if recd_message == -1:
-                break
+        #check if received message was quit command
+        if recd_message == -1:
+            break
             
-            #send message to client
-            send_message = send_msg(connection_socket, server_handle, SENTINEL)
+        #send message to client
+        send_message = send_msg(connection_socket, SENTINEL)
             
-            #check if sent message was quit command
-            if send_message == -1:
-                break
-        
-        #close connection
-        connection_socket.close()
+        #check if sent message was quit command
+        if send_message == -1:
+            break"""
+    print("Connection successful")
+     
+    #close connection
+    client_socket.close()
         
 
 
@@ -127,11 +120,11 @@ Outputs: possibly downloads files from server
 """
 if __name__ == "__main__":
     #check total argument count
-    if len(sys.argv) != 2:
-        print("USAGE: %s port" % sys.argv[0])
+    if len(sys.argv) != 3:
+        print("USAGE: %s server port" % sys.argv[0])
     #check that port number is actually a number
-    elif not sys.argv[1].isdigit():
+    elif not sys.argv[2].isdigit():
         print("syntax error: port must be a number")
     #everything is ok, call server setup
     else:
-        connect_server(int(sys.argv[1]));
+        connect_server(server, int(sys.argv[1]));
