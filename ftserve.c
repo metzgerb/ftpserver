@@ -118,17 +118,17 @@ int setupServer(int portNumber)
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
 	serverAddress.sin_family = AF_INET; // Create a network-capable socket
 	serverAddress.sin_port = htons(portNumber); // Store the port number
-	gethostname(serverName);
-	serverHostInfo = serverName; // Convert the machine name into a special form of address
+	//gethostname(serverName);
+	serverAddress.sin_addr.s_addr = INADDR_ANY; // Convert the machine name into a special form of address
 	
 	//check if server info could not be obtained
-	if (serverHostInfo == NULL) 
-	{ 
-		return -3;
-	}
+	//if (serverHostInfo == NULL) 
+	//{ 
+	//	return -3;
+	//}
 
 	// Copy in the address
-	memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)serverHostInfo->h_addr_list[0], serverHostInfo->h_length); 
+	//memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)serverHostInfo->h_addr_list[0], serverHostInfo->h_length); 
 
 	// Set up the socket
 	socketPtr = socket(AF_INET, SOCK_STREAM, 0); // Create the socket
