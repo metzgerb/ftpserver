@@ -61,13 +61,7 @@ def recv_msg(socket, sentinel, buffer_size):
     #remove sentinel from message
     message = message.replace(sentinel, "")
     
-    #check if socket has closed using length of recd message
-    if message == "\\quit":
-        return -1
-    else:    
-        #print message to server
-        print(message)
-        return message
+    return message
 
 
 """
@@ -128,12 +122,9 @@ def main(server, control_port, data_port, command, file_name = ""):
     
     #send command to control connection and receive response
     send_msg(control_socket, SENTINEL, command + file_name)
+    response = recv_msg(control_socket, SENTINEL, 500)
     
-    
-    if(True):
-        #send hostname for data connection to control connection
-        send_msg(control_socket, SENTINEL, gethostname())
-
+    if(response):
         #send port number for data connection to control connection
         send_msg(control_socket,SENTINEL, str(data_port))
     

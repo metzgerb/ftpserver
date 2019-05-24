@@ -28,6 +28,7 @@ int setupServer(int portNumber);
 int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr);
 int recvMsg(int socketPtr, char* message, int messageLen);
+void parseCmd(int socketPtr, char* message, int messageLen);
 
 
 int main(int argc, char *argv[])
@@ -91,19 +92,9 @@ int main(int argc, char *argv[])
 		recvMsg(controlConn, command, sizeof(command));
 		printf("command recd: %s\n", command);
 
-		//receive hostname for data connection
-		recvMsg(controlConn, remoteHost, sizeof(remoteHost));
-		printf("host recd: %s\n", remoteHost);
+		//parse command and respond to client
+		parseCmd(controlConn, command, sizeof(command));
 
-		//receive port number for data connection
-		recvMsg(controlConn, dataPort, sizeof(dataPort));
-		printf("port recd: %s\n", dataPort);
-
-		dataConn = connectServer(remoteHost, atoi(dataPort));
-
-		printf("Data connection success!\n");
-
-		close(dataConn);
 		close(controlConn); // Close the existing socket which is connected to the client
 		
 	}
@@ -211,6 +202,7 @@ int connectServer(char* server, int portNumber)
 	return socketPtr;
 }
 
+
 /******************************************************************************
  * Function name: sendMsg
  * Inputs: Takes the socket to send to and a message to send
@@ -218,44 +210,13 @@ int connectServer(char* server, int portNumber)
  * Description: The function sends a message to the client. It is generic and
  *		can be used to send any type of message
  ******************************************************************************/
-int sendMsg(int socketPtr)
+int sendMsg(int socketPtr, char* buffer)
 {
-	char buffer[BUFFER_SIZE];
 	char message[MAX_BUFFER];
 	int charsWritten;
 	
-	// Get input message from user
-	printf("> ");
-	fflush(stdout);
-	memset(buffer, '\0', sizeof(buffer)); // Clear out the buffer array
-	fgets(buffer, sizeof(buffer) - 1, stdin); // Get input from the user, trunc to buffer - 1 chars, leaving \0
-	buffer[strcspn(buffer, "\n")] = '\0'; // Remove the trailing \n that fgets adds
-
-	//check if '\quit' command received
-	if (strcmp(buffer, "\\quit") == 0)
-	{
-		//Add sentinel before sending quit to server
-		strcat(buffer, SENTINEL);
-		//stop client, send  move to close connection
-		charsWritten = send(socketPtr, buffer, strlen(buffer), 0); // Write to the server
-		
-		//check for errors
-		if (charsWritten < 0)
-		{
-			error("# CLIENT: ERROR writing to socket");
-		}
-		if (charsWritten < strlen(buffer)) //I chose to not loop while sending since the message is small. This will catch any error caused by that choice
-		{
-			printf("# CLIENT: WARNING: Not all data written to socket!\n");
-		}
-
-		return 1;
-	}
-
-	//prepend handle to message
-	memset(message, '\0', sizeof(message)); // Clear out the message array
-	strcpy(message, "> ");
-	strcat(message, buffer);
+	//copy sentinel to message
+	strcpy(message, buffer);
 	strcat(message, SENTINEL);
 
 	// Send message to server
@@ -271,7 +232,7 @@ int sendMsg(int socketPtr)
 		//check for write error
 		if (s < 0)
 		{
-			error("# CLIENT: ERROR writing to socket");
+			error("ERROR writing to socket");
 		}
 		sendPtr += s;
 		length -= s;
@@ -316,4 +277,53 @@ int recvMsg(int socketPtr, char* message, int messageLen)
 	message[strlen(message) - strlen(SENTINEL)] = '\0';
 
 	return 0;
+}
+
+
+/******************************************************************************
+ * Function name: parseCmd
+ * Inputs: Takes the control socket and command
+ * Outputs: nothing
+ * Description: The function parses the command received from the client and 
+ *		either sends a directory listing, sends a file, or send an error.
+ ******************************************************************************/
+void parseCmd(int socketPtr, char* message, int messageLen)
+{
+	//separate command from file name
+	char command[3];
+	char fileName[256];
+
+	memcpy(command, &message, 2);
+	command[2] = '\0';
+	printf("Parsed cmd: %s\n", command);
+
+	memcpy(fileName, &message[2], messageLen - 2);
+	fileName[255] = '\0';
+	printf("Parsed filename: %s\n", fileName);
+
+	//parse command and send command confirmation
+	if (strcmp(command, "-l") == 0 || strcmp(command, "-g") == 0)
+	{
+		//send confirmation
+		sendMsg(socketPtr, "1");
+
+		//receive port number for data connection
+		recvMsg(controlConn, dataPort, sizeof(dataPort));
+		printf("port recd: %s\n", dataPort);
+
+		dataConn = connectServer(client, atoi(dataPort));
+
+		printf("Data connection success!\n");
+
+		close(dataConn);
+
+	}
+	else
+	{
+		//send error code with error message
+		printf("Error parsing command\n");
+		sendMsg(socketPtr, "0");
+	}
+	
+
 }
