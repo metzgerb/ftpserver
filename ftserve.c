@@ -18,8 +18,8 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 
-#define BUFFER_SIZE 503
-#define MAX_BUFFER 700
+#define BUFFER_SIZE 256
+#define MAX_BUFFER 500
 #define SENTINEL "@!@"
 
 //function declarations
@@ -31,10 +31,14 @@ int recvMsg(int socketPtr);
 
 int main(int argc, char *argv[])
 {
-	int socketFD, serverConn;
+	int socketFD, controlConn, dataConn;
 	socklen_t sizeOfClientInfo;
 	struct sockaddr_in clientAddress;
 
+	char command[MAX_BUFFER];
+	char remoteHost[MAX_BUFFER];
+	char dataPort[20];
+	
 	//check for correct number of arguments
 	if (argc != 2) 
 	{ 
@@ -67,17 +71,30 @@ int main(int argc, char *argv[])
 
 		//accept a connection
 		sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
-		serverConn = accept(socketFD, (struct sockaddr *)&clientAddress, &sizeOfClientInfo); // Accept
+		controlConn = accept(socketFD, (struct sockaddr *)&clientAddress, &sizeOfClientInfo); // Accept
 		
 		//check for accept error
-		if (serverConn < 0)
+		if (controlConn < 0)
 		{
 			error("ERROR on accept");
 		}
 
-		printf("Successful connection!\n");
+		printf("Control connection success!\n");
+		
+		//receive hostname for data connection
+		recvMsg(controlConn, remoteHost);
+		printf("Host received: %s\n", remoteHost);
 
-		close(serverConn); // Close the existing socket which is connected to the client
+		//receive port number for data connection
+		recvMsg(controlConn, dataPort);
+		printf("Data Port received: %s\n", dataPort);
+
+		connectServer(remoteHost, atoi(dataPort));
+
+		printf("Control connection success!\n");
+
+		close(dataConn);
+		close(controlConn); // Close the existing socket which is connected to the client
 		
 	}
 
@@ -138,6 +155,53 @@ int setupServer(int portNumber)
 	return socketPtr;
 }
 
+
+/******************************************************************************
+ * Function name: connectServer
+ * Inputs: Takes the server and port number of the server
+ * Outputs: Returns a socket if connected successfully
+ * Description: The function attempts to connect to the specified server and
+		port using a TCP connection. If socket fails to open, function return -1
+		if socket fails to connect to server, function returns -2.
+ ******************************************************************************/
+int connectServer(char* server, int portNumber)
+{
+	int socketPtr;
+	struct sockaddr_in serverAddress;
+	struct hostent* serverHostInfo;
+
+	// Set up the server address struct
+	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
+	serverAddress.sin_family = AF_INET; // Create a network-capable socket
+	serverAddress.sin_port = htons(portNumber); // Store the port number
+	serverHostInfo = gethostbyname(server); // Convert the machine name into a special form of address
+
+	//check if server info could not be obtained
+	if (serverHostInfo == NULL)
+	{
+		error("# CLIENT: ERROR, no such host\n");
+	}
+
+	// Copy in the address
+	memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)serverHostInfo->h_addr_list[0], serverHostInfo->h_length);
+
+	// Set up the socket
+	socketPtr = socket(AF_INET, SOCK_STREAM, 0); // Create the socket
+
+	//check that socket was opened successfully
+	if (socketPtr < 0)
+	{
+		return -1;
+	}
+
+	// Connect to server and check that connection was successful
+	if (connect(socketPtr, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0)
+	{
+		return -2;
+	}
+
+	return socketPtr;
+}
 
 /******************************************************************************
  * Function name: sendMsg
@@ -216,10 +280,9 @@ int sendMsg(int socketPtr)
  * Description: The function receives a message from the client and parses it
  *		to determine what course of action to take
  ******************************************************************************/
-int recvMsg(int socketPtr)
+int recvMsg(int socketPtr, char* message)
 {
 	char buffer[BUFFER_SIZE];
-	char message[MAX_BUFFER];
 	int charsRead;
 
 	memset(buffer, '\0', sizeof(buffer));
@@ -243,16 +306,6 @@ int recvMsg(int socketPtr)
 
 	//strip term sentinel from return message
 	message[strlen(message) - strlen(SENTINEL)] = '\0';
-
-	//check for quit message from server
-	if (strcmp(message, "\\quit") == 0)
-	{
-		//return quit command
-		return 1;
-	}
-
-	printf("%s\n", message);
-	fflush(stdout);
 
 	return 0;
 }

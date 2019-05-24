@@ -16,25 +16,30 @@ import sys
 
 """
 Function Name: send_msg
-Description: sends a message to the server
-Inputs: takes a socket file descriptor, a message and a sentinel
+Description: sends a message (user prompted) to the server
+Inputs: takes a socket file descriptor, and a sentinel
 Outputs: returns success code or quit code
 """
 def send_msg(socket, sentinel):
     #get input from user
     message = input()
             
-    #check if message is "\quit"
-    if message == "\\quit":
-        #send quit message back with sentinel
-        message += sentinel
-        socket.sendall(message.encode())
-        return -1          
-    else: 
-        #send message back
-        message = message + sentinel
-        socket.sendall(message.encode())
-        return 0
+    #send message back
+    message = message + sentinel
+    socket.sendall(message.encode())
+    return 0
+
+"""
+Function Name: send_msg
+Description: sends a message to the server
+Inputs: takes a socket file descriptor, a message and a sentinel
+Outputs: returns success code or quit code
+"""
+def send_msg(socket, sentinel, message):
+    #send message to server
+    message = message + sentinel
+    socket.sendall(message.encode())
+    return 0
 
 
 """
@@ -81,53 +86,70 @@ Description: attempts to establish a control connection to the server on the spe
 Inputs: takes the host name and port number of the server
 Outputs: returns a socket file descriptor to be used in later steps
 """
-def connect_server(server, port_number):
-    #initialize values
-    #MAX_BUFFER = 700
-    #SENTINEL = "@!@"
-    
+def connect_server(server, port_number): 
     #set up client socket
     new_socket = socket(AF_INET, SOCK_STREAM)
     new_socket.connect((server, port_number))
     
-    #continuously receive and send messages
-    #while True:
-        #receive a message from client
-        #recd_message = recv_msg(connection_socket, SENTINEL, 700)
-            
-        #check if received message was quit command
-        #if recd_message == -1:
-        #    break
-        
-        #send message to server
-        #send_message = send_msg(new_socket, SENTINEL)
-            
-        #check if sent message was quit command
-        #if send_message == -1:
-            #break
-    #print("Connection successful")
-     
-    #close connection
-    #new_socket.close()
     return new_socket
 
+"""
+Function Name: setup_server
+Description: sets up a data connection server on the specified port
+Inputs: takes the port number to listen on
+Outputs: returns a socket connection file descriptor to be used in later steps
+"""
+def setup_server(port_number):    
+    #set up server socket
+    server_socket = socket(AF_INET, SOCK_STREAM)
+    server_socket.bind(('', port_number))
+    
+    #begin listening
+    server_socket.listen(1)
+        
+    #accept connection
+    connection_socket, addr = server_socket.accept()
+    
+    return connection_socket
+
+
+"""
+Function Name: main
+Description: controls the main logic of the program
+Inputs: takes remote server host, the connection port number and data port number
+Outputs: returns nothing
+"""
 def main(server, control_port, data_port):
-    #connect to server
+    #define initial variables
+    SENTINEL = "@!@"
+    
+    #connect to server on control connection
     control_socket = connect_server(server,control_port)
-    print("Connection successful")
-    #if successful, set up data server
-    control_socket.close()
+    print("Control connection successful")
+    
+    #send hostname for data connection to control connection
+    send_msg(control_socket, SENTINEL, socket.gethostname())
+    print("sent: %s\n" % socket.gethostname())
     #send port number for data connection to control connection
+    send_msg(control_socket,SENTINEL, str(data_port))
+    print("sent: %s\n" % str(data_port))
+    
+    #set up data server
+    data_socket = setup_server(data_port)
+    print("Data connection successful")
+    
     #send command to control connection
     #receive response to command on control connection
     #receive response/data on data connection
     #do something with response
+    data_socket.close()
+    control_socket.close()
 
 """
-Description: main code that validates the commandline arguments used
+Description: intial code that validates the commandline arguments used
     and calls the other functions to create the connections and save files
-Inputs: takes X arguments (server name, control port number, data port number)
-Outputs: possibly downloads files from server
+Inputs: takes 3 arguments (server name, control port number, data port number)
+Outputs: returns nothing
 """
 if __name__ == "__main__":
     #check total argument count
@@ -140,5 +162,4 @@ if __name__ == "__main__":
         print("syntax error: data_port must be a number")
     #everything is ok, call main function
     else:
-        #connect_server(sys.argv[1], int(sys.argv[2]))
         main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
