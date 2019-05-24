@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	}
 	else if (socketFD == -2)
 	{
-		error("ERROR binding on port %s", argv[1]);
+		error("ERROR binding on port");
 	}
 
 	//loop while accepting clients
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
 		printf("Successful connection!\n");
 
-		close(establishedConnectionFD); // Close the existing socket which is connected to the client
+		close(serverConn); // Close the existing socket which is connected to the client
 		
 	//}
 
@@ -157,7 +157,7 @@ int sendMsg(int socketPtr)
 	int charsWritten;
 	
 	// Get input message from user
-	printf("%s> ", handle);
+	printf("> ");
 	fflush(stdout);
 	memset(buffer, '\0', sizeof(buffer)); // Clear out the buffer array
 	fgets(buffer, sizeof(buffer) - 1, stdin); // Get input from the user, trunc to buffer - 1 chars, leaving \0
