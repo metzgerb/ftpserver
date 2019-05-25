@@ -217,9 +217,6 @@ int sendMsg(int socketPtr, char* buffer)
 	strcpy(message, buffer);
 	strcat(message, SENTINEL);
 
-	//temp to debug
-	printf("message sent: %s\n", message);
-
 	// Send message to server
 	long length = strlen(message) + 1;
 	char* sendPtr = message;
@@ -267,7 +264,7 @@ int recvMsg(int socketPtr, char* message, int messageLen)
 		//check for socket read error
 		if (charsRead < 0)
 		{
-			error("# CLIENT: ERROR reading from socket");
+			error("ERROR reading from socket");
 		}
 
 		//add new characters
@@ -294,44 +291,63 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	char dataPort[20];
 	char command[3];
 	
-
 	//separate command from file name
 	memcpy(command, message, 2);
-	printf("copied command: %s\n", command);
 	command[2] = '\0';
-	printf("Parsed cmd: %s\n", command);
 
 	//parse command and send command confirmation
 	if (strcmp(command, "-l") == 0 || strcmp(command, "-g") == 0)
 	{
-		//send confirmation
+		//send good command confirmation
 		sendMsg(socketPtr, "1");
 
 		//receive port number for data connection
 		recvMsg(socketPtr, dataPort, sizeof(dataPort));
-		printf("port recd: %s\n", dataPort);
 
+		//connect to client on data port
 		dataConn = connectServer(client, atoi(dataPort));
+		
+		//check if command is for directory listing
+		if (strcmp(command, "-l") == 0)
+		{
+			printf("List directory requested on port %s\n", dataPort);
+						
+			//TODO: get directory listing
 
-		printf("Data connection success!\n");
+			//TODO: send directory listing on data connection
+			printf("Sending directory contents to %s:%s\n", client ,dataPort);
 
-		//TODO:may need to check if command should have file name
-		//char fileName[256];
-		//memcpy(fileName, &message[2], messageLen - 2);
-		//fileName[255] = '\0';
-		//printf("Parsed filename: %s\n", fileName);
+		}
+		else //assume "get" command issued
+		{
+			//parse file name
+			char fileName[256];
+			memcpy(fileName, &message[2], messageLen - 2);
+			fileName[255] = '\0';
+			printf("File \"%s\" requested on port %s\n", fileName, dataPort);
 
-		printf("%d", strcmp(command, "-l"));
+			//TODO: check if file found, send if found, else send error
+			if (1)
+			{
+				//send file found confirmation to control connection
+				printf("Sending \"%s\" to %s:%s\n", fileName, client, dataPort);
 
+			}
+			else
+			{
+				//send error to control connection
+				printf("File not found. Sending error message to %s\n", client);
+
+			}
+		}
+
+		//close data connection
 		close(dataConn);
-
 	}
-	else
+	else //catchall for invalid commmands
 	{
 		//send error code with error message
 		printf("Error parsing command\n");
 		sendMsg(socketPtr, "0Invalid command");
 	}
-	
-
 }

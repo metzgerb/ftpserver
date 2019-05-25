@@ -131,9 +131,31 @@ def main(server, control_port, data_port, command, file_name = ""):
         #set up data server
         data_socket = setup_server(data_port)
 
-        #do something based on command provided
-        print("Data Connection success")
+        #Check if command is for directory listing
+        if command == "-l":
+            #print command being used
+            print("Receiving directory structure from %s:%d" % server, data_port)
+            
+            #TODO: receive directory listing on data port
+            
+            #print directory listing
         
+        #assume "get" command used"
+        else:
+            #TODO: receive control response about file errors
+            if file_found:
+                #print command being used
+                print("Receiving \"%s\" from %s:%d" % file_name, server, data_port)
+                
+                #receive file on data port
+                
+                #print confirmation of completed transfer
+                print("File Transfer complete")
+            
+            else:
+                #print error message
+                print("%s:%d says FILE NOT FOUND" % server, data_port)
+                
         #close data socket
         data_socket.close()
         
