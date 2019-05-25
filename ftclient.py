@@ -19,7 +19,7 @@ Function Name: send_msg
 Description: sends a message (user prompted) to the server
 Inputs: takes a socket file descriptor, and a sentinel
 Outputs: returns success code or quit code
-"""
+
 def send_msg(socket, sentinel):
     #get input from user
     message = input()
@@ -28,6 +28,7 @@ def send_msg(socket, sentinel):
     message = message + sentinel
     socket.sendall(message.encode())
     return 0
+"""
 
 """
 Function Name: send_msg
@@ -63,6 +64,27 @@ def recv_msg(socket, sentinel):
     
     return message
 
+"""
+Function Name: recv_file
+Description: waits to receive a filesize from the server
+Inputs: takes a socket file descriptor
+Outputs: returns received message
+"""
+def recv_file(socket, sentinel):
+    #receive filesize
+    file_size = int(recv_msg(socket, sentinel).strip('\x00'))
+    
+    #send confirmation
+    send_msg(socket, sentinel, "1")
+    
+    file_data = ""
+    
+    #receive file until max number of bytes received
+    #while(sys.getsizeof(file_data) < file_size):
+        #file_data += recv_msg(socket,sentinel)
+    
+    return file_data
+    
 
 """
 Function Name: save_file
@@ -153,7 +175,8 @@ def main(server, control_port, data_port, command, file_name = ""):
                 #print command being used
                 print("Receiving \"%s\" from %s:%d" % (file_name, server, data_port))
                 
-                #TODO: receive file on data port
+                #receive file on data port
+                file_data = recv_file(data_socket, SENTINEL)
                 
                 #print confirmation of completed transfer
                 print("File Transfer complete")

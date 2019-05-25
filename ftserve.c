@@ -519,13 +519,13 @@ void sendDataFile(int socketPtr, char* fileName)
 	printf("%s\n", sizeString); //for debug
 
 	//send file size to client on data connection
-	/*sendMsg(socketPtr, sizeString);
+	sendMsg(socketPtr, sizeString);
 
 	//receive confirmation that client is ready
 	recvMsg(socketPtr, &response);
 	
 	//check if client is ready for file size
-	if (strcmp(response, "1") != 0)
+	/*if (strcmp(response, "1") != 0)
 	{
 		error("Client error, not ready for file");
 	}
