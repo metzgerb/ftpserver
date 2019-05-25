@@ -73,7 +73,7 @@ Outputs: returns received message
 def recv_file(socket, sentinel):
     #receive filesize
     file_size = int(recv_msg(socket, sentinel).strip('\x00'))
-    
+    print("file size: %d" % file_size)
     #send confirmation
     send_msg(socket, sentinel, "1")
     

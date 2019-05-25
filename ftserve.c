@@ -525,11 +525,13 @@ void sendDataFile(int socketPtr, char* fileName)
 	recvMsg(socketPtr, &response);
 	
 	//check if client is ready for file size
-	/*if (strcmp(response, "1") != 0)
+	if (strcmp(response, "1") != 0)
 	{
 		error("Client error, not ready for file");
 	}
-
+	printf("Response recd: %s\n", response);
+	free(response);
+	/*
 	//read through file and send chunks to client
 	while (fread(buffer, 1, sizeof(buffer), fileToSend) > 0)
 	{
