@@ -144,7 +144,7 @@ def main(server, control_port, data_port, command, file_name = ""):
         
         #assume "get" command used"
         else:
-            #receive control response about file errors
+            #receive control response about file errors (stripping out null terminator
             #source: https://stackoverflow.com/questions/26635315/conversion-of-null-terminated-string-to-int-in-python
             file_found = int(recv_msg(control_socket, SENTINEL).strip('\x00'))
             
@@ -153,7 +153,7 @@ def main(server, control_port, data_port, command, file_name = ""):
                 #print command being used
                 print("Receiving \"%s\" from %s:%d" % (file_name, server, data_port))
                 
-                #receive file on data port
+                #TODO: receive file on data port
                 
                 #print confirmation of completed transfer
                 print("File Transfer complete")

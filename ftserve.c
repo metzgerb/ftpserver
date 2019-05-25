@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h> //for getting filesize to send files
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -34,6 +35,7 @@ int recvMsg(int socketPtr, char** message);
 void parseCmd(int socketPtr, char* client, char* service, char* message);
 void getDir(char** result);
 int isInDir(char* fileName);
+void sendDataFile(int socketPtr, char* fileName);
 
 int main(int argc, char *argv[])
 {
@@ -362,7 +364,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message)
 			fileName[255] = '\0'; //for safety
 			printf("File \"%s\" requested on port %s\n", fileName, dataPort);
 
-			//TODO: check if file found, send if found, else send error
+			//check if file found, send if found, else send error
 			if (isInDir(fileName))
 			{
 				//print file found confirmation
@@ -372,7 +374,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message)
 				sendMsg(socketPtr, "1");
 
 				//send file through data connection
-
+				sendDataFile(dataConn, fileName);
 			}
 			else //file was not found
 			{
@@ -395,6 +397,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message)
 		sendMsg(socketPtr, "0");
 	}
 }
+
 
 /******************************************************************************
  * Function name: getDir
@@ -484,4 +487,59 @@ int isInDir(char* fileName)
 
 	closedir(dr);
 	return 0; //file not found
+}
+
+
+/******************************************************************************
+ * Function name: sendDataFile
+ * Inputs: Takes the socket to send to and the filename to send
+ * Outputs: Returns nothing
+ * Description: The function sends a requested file to the client. 
+ ******************************************************************************/
+void sendDataFile(int socketPtr, char* fileName)
+{
+	char* response;
+	char buffer[MAX_BUFFER];
+	memset(buffer, sizeof(buffer), '\0');
+
+	//open file for binary reading
+	FILE* fileToSend;
+	fileToSend = fopen(fileName, "rb");
+
+	//get file size
+	//source: https://stackoverflow.com/questions/8236/how-do-you-determine-the-size-of-a-file-in-c
+	struct stat st;
+	stat(fileName, &st);
+	off_t fileSize = st.st_size;
+	
+	
+	//convert fileSize to string for sending
+	char sizeString[MAX_BUFFER];
+	snprintf(sizeString, MAX_BUFFER,"%lu", fileSize);
+	printf("%s\n", sizeString); //for debug
+
+	//send file size to client on data connection
+	/*sendMsg(socketPtr, sizeString);
+
+	//receive confirmation that client is ready
+	recvMsg(socketPtr, &response);
+	
+	//check if client is ready for file size
+	if (strcmp(response, "1") != 0)
+	{
+		error("Client error, not ready for file");
+	}
+
+	//read through file and send chunks to client
+	while (fread(buffer, 1, sizeof(buffer), fileToSend) > 0)
+	{
+		//send buffer to client on data connection
+		sendMsg(socketPtr, buffer);
+
+		//clear out buffer before each use
+		memset(buffer, sizeof(buffer), '\0');
+	}*/
+
+	//close file
+	fclose(fileToSend);
 }
