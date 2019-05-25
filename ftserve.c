@@ -304,15 +304,16 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 
 		//receive port number for data connection
 		recvMsg(socketPtr, dataPort, sizeof(dataPort));
-		printf("DataPort: %s\n", dataPort);
+		printf("DataPort: %s\n", dataPort); //for debug
 		//connect to client on data port
 		dataConn = connectServer(client, atoi(dataPort));
 		
 		//check if command is for directory listing
 		if (strcmp(command, "-l") == 0)
 		{
+			//print command requested
 			printf("List directory requested on port %s\n", dataPort);
-			printf("DataPort: %s\n", dataPort);
+			
 			//TODO: get directory listing
 
 			//TODO: send directory listing on data connection
@@ -322,10 +323,10 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 		else //assume "get" command issued
 		{
 			//parse file name
-			//char fileName[256];
-			//memcpy(fileName, &message[2], messageLen - 2);
-			//fileName[255] = '\0';
-			printf("DataPort: %s\n", dataPort);
+			char fileName[256];
+			strcpy(fileName, &message[2]);
+			fileName[255] = '\0';
+			printf("DataPort: %s\n", dataPort);//for debug
 			printf("File \"%s\" requested on port %s\n", "fileName", dataPort);
 
 			//TODO: check if file found, send if found, else send error
