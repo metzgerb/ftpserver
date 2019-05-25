@@ -30,7 +30,7 @@ int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr, char* buffer);
 int recvMsg(int socketPtr, char* message, int messageLen);
 void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen);
-void getDir(char * result, int startCapacity);
+void getDir(char** result);
 
 int main(int argc, char *argv[])
 {
