@@ -60,7 +60,7 @@ def recv_file(socket, sentinel):
     #send confirmation
     send_msg(socket, sentinel, "1")
     
-    file_data = ""
+    #file_data = ""
     
     #receive file until max number of bytes received
     while(sys.getsizeof(file_data) < file_size):
