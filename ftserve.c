@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 
 		//parse and output client name (Source: https://beej.us/guide/bgnet/html/multi/getnameinfoman.html)
 		getnameinfo(&clientAddress, sizeOfClientInfo, client, sizeof(client), service, sizeof(service), 0);
-		printf("Connection from %s\n", client);
+		printf("Connection from %s:%s\n", client, service);
 		
 		//receive command for data connection
 		recvMsg(controlConn, command, sizeof(command));
