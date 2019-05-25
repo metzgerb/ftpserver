@@ -316,8 +316,8 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 			printf("List directory requested on port %s\n", dataPort);
 			
 			//allocate dynamic memory to hold directory listing in string
-			dirList = (char *)malloc(10 * sizeof(char));
-			memset(dirList, sizeof(dirList));
+			char * dirList = (char *)malloc(10 * sizeof(char));
+			memset(dirList, sizeof(dirList), '\0');
 
 			//store directory listing
 			getDir(&dirList, 10);
