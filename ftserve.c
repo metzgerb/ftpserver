@@ -315,12 +315,9 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 			//print command requested
 			printf("List directory requested on port %s\n", dataPort);
 			
-			//allocate dynamic memory to hold directory listing in string
-			char * dirList = (char *)malloc(10 * sizeof(char));
-			memset(dirList, sizeof(dirList), '\0');
-
 			//store directory listing
-			getDir(dirList, 10);
+			char* dirList;
+			getDir(&dirList);
 			printf("%s\n", dirList);
 
 			//TODO: send directory listing on data connection
@@ -379,13 +376,15 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
  *		adds its contents to the char *
  * Source: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
  ******************************************************************************/
-void getDir(char * result, int startCapacity)
+void getDir(char** result)
 {
 	struct dirent *de;  // Pointer for directory entry 
 
-	//set initial string length and capacity
+	//set initial string length, capacity and allocate memory
 	int length = 0;
-	int capacity = startCapacity;
+	int capacity = 10;
+	*result = malloc(10 * sizeof(char));
+	memset(*result, capacity, '\0');
 
 	// opendir() returns a pointer of DIR type.  
 	DIR *dr = opendir(".");
@@ -406,11 +405,11 @@ void getDir(char * result, int startCapacity)
 		if (length > capacity - 1)
 		{
 			//double capacity
-			result = (char *)realloc(result, capacity * 2);
+			*result = (char *)realloc(*result, capacity * 2);
 		}
 
 		//add dir entry to result string
-		strcat(result, de->d_name);
+		strcat(*result, de->d_name);
 		//printf("%s\n", de->d_name);
 	}
 	closedir(dr);
