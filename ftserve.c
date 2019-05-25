@@ -538,7 +538,8 @@ void sendDataFile(int socketPtr, char* fileName)
 		printf("sending %d bytes of data\n", dataSent); //for debug
 		printf("%s\n\n", buffer);
 		//send buffer to client on data connection
-		sendMsg(socketPtr, buffer);
+		//sendMsg(socketPtr, buffer);
+		send(socketPtr, buffer, sizeof(buffer),0);
 
 		//clear out buffer before each use
 		memset(buffer, sizeof(buffer), '\0');
