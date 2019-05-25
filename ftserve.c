@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
 	char command[MAX_BUFFER];
 	char client[MAX_BUFFER];
 	char service[20];
-
 	
 	//check for correct number of arguments
 	if (argc != 2) 
@@ -405,12 +404,15 @@ void getDir(char** result)
 		if (length > capacity - 1)
 		{
 			//double capacity
-			*result = (char *)realloc(*result, capacity * 2);
+			capacity *= 2;
+			//reallocate memory
+			*result = (char *)realloc(*result, capacity);
 		}
 
 		//add dir entry to result string
 		strcat(*result, de->d_name);
 		//printf("%s\n", de->d_name);
 	}
+
 	closedir(dr);
 }
