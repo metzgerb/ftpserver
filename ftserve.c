@@ -323,7 +323,7 @@ int recvMsg(int socketPtr, char** message)
 		}
 
 		//add new characters
-		strcat(message, buffer);
+		strcat(*message, buffer);
 	}
 
 	//strip term sentinel from return message
