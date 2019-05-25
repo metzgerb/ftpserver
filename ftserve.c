@@ -33,7 +33,7 @@ int sendMsg(int socketPtr, char* buffer);
 int recvMsg(int socketPtr, char** message);
 void parseCmd(int socketPtr, char* client, char* service, char* message);
 void getDir(char** result);
-void isInDir(char* fileName);
+int isInDir(char* fileName);
 
 int main(int argc, char *argv[])
 {
@@ -458,7 +458,7 @@ void getDir(char** result)
  *		checks for a specific file.
  * Partial Source: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
  ******************************************************************************/
-void isInDir(char* fileName)
+int isInDir(char* fileName)
 {
 	struct dirent *de;  // Pointer for directory entry 
 
@@ -475,10 +475,10 @@ void isInDir(char* fileName)
 	while ((de = readdir(dr)) != NULL)
 	{
 		//check if entry is file type and name matches searched name
-		if (de->d_type == DT_REG && strcmp(de->d_name, fileName))
+		if (de->d_type == DT_REG && strcmp(de->d_name, fileName) == 0)
 		{
 			closedir(dr);
-			return 1;
+			return 1; //file found
 		}
 	}
 
