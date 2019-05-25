@@ -66,6 +66,7 @@ def recv_file(socket, sentinel):
     while(sys.getsizeof(file_data) < file_size):
         file_data += recv_msg(socket,sentinel)
     print("Size of data received: %d" % sys.getsizeof(file_data))
+    print("%s" % file_data)
     return file_data
     
 
