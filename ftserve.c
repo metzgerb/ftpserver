@@ -178,7 +178,7 @@ int connectServer(char* server, int portNumber)
 	//check if server info could not be obtained
 	if (serverHostInfo == NULL)
 	{
-		error("# CLIENT: ERROR, no such host\n");
+		error("ERROR, no such host\n");
 	}
 
 	// Copy in the address
@@ -210,7 +210,7 @@ int connectServer(char* server, int portNumber)
  * Description: The function sends a message to the client. It is generic and
  *		can be used to send any type of message
  ******************************************************************************/
-int sendMsg(int socketPtr, char* buffer)
+/*int sendMsg(int socketPtr, char* buffer)
 {
 	char message[MAX_BUFFER];
 	
@@ -237,6 +237,38 @@ int sendMsg(int socketPtr, char* buffer)
 		length -= s;
 	}
 
+	return 0;
+}*/
+
+int sendMsg(int socketPtr, char* buffer)
+{
+	char* message = malloc((strlen(buffer) + strlen(SENTINEL) + 1 ) * sizeof(char));
+
+	//copy sentinel to message
+	strcpy(message, buffer);
+	strcat(message, SENTINEL);
+
+	// Send message to server
+	long length = strlen(message) + 1;
+	char* sendPtr = message;
+
+	//loop and send message until all is sent
+	//modified from source: https://stackoverflow.com/questions/13479760/c-socket-recv-and-send-all-data
+	while (length > 0)
+	{
+		long s = send(socketPtr, sendPtr, length, 0);
+
+		//check for write error
+		if (s < 0)
+		{
+			free(message);
+			error("ERROR writing to socket");
+		}
+		sendPtr += s;
+		length -= s;
+	}
+
+	free(message);
 	return 0;
 }
 
@@ -317,7 +349,6 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 			//store directory listing
 			char* dirList;
 			getDir(&dirList);
-			printf("%s\n", dirList);
 
 			//TODO: send directory listing on data connection
 			printf("Sending directory contents to %s:%s\n", client, dataPort);

@@ -45,17 +45,17 @@ def send_msg(socket, sentinel, message):
 """
 Function Name: recv_msg
 Description: waits to receive a message from the server
-Inputs: takes a socket file descriptor, a message and a sentinel
-Outputs: 
+Inputs: takes a socket file descriptor, and a sentinel
+Outputs: returns received message
 """
-def recv_msg(socket, sentinel, buffer_size):
+def recv_msg(socket, sentinel):
     #set initial values to empty strings
     buffer = ""
     message = ""
     
     #call recv in a loop until sentinel is detected in compiled message
     while(sentinel not in message):
-        buffer = socket.recv(buffer_size).decode()
+        buffer = socket.recv(1024).decode()
         message += buffer
         
     #remove sentinel from message
@@ -122,7 +122,7 @@ def main(server, control_port, data_port, command, file_name = ""):
     
     #send command to control connection and receive response
     send_msg(control_socket, SENTINEL, command + file_name)
-    response = recv_msg(control_socket, SENTINEL, 10)
+    response = recv_msg(control_socket, SENTINEL)
     
     if(response):
         #send port number for data connection to control connection
@@ -143,7 +143,7 @@ def main(server, control_port, data_port, command, file_name = ""):
         #assume "get" command used"
         else:
             #TODO: receive control response about file errors
-            file_found = recv_msg(control_socket, SENTINEL, 10)
+            file_found = recv_msg(control_socket, SENTINEL)
             
             #check if file was found
             if file_found:
