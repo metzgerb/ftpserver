@@ -146,7 +146,7 @@ def main(server, control_port, data_port, command, file_name = ""):
         else:
             #receive control response about file errors
             file_found = recv_msg(control_socket, SENTINEL)
-            
+            print(file_found)
             #check if file was found
             if file_found:
                 #print command being used
