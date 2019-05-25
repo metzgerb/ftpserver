@@ -415,7 +415,7 @@ void getDir(char** result)
 	}
 	
 	//remove final newline
-	*result[length-1] = '\0';
+	(*result)[strlen(*result)-1] = '\0';
 
 	closedir(dr);
 }
