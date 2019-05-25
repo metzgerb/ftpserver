@@ -16,7 +16,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h> 
+#include <netdb.h>
+#include <dirent.h> //for directory listing
 
 #define BUFFER_SIZE 256
 #define MAX_BUFFER 500
@@ -29,7 +30,7 @@ int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr, char* buffer);
 int recvMsg(int socketPtr, char* message, int messageLen);
 void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen);
-
+void getDir();
 
 int main(int argc, char *argv[])
 {
@@ -315,6 +316,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 			printf("List directory requested on port %s\n", dataPort);
 			
 			//TODO: get directory listing
+			getDir();
 
 			//TODO: send directory listing on data connection
 			printf("Sending directory contents to %s:%s\n", client, dataPort);
@@ -359,4 +361,31 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 		printf("Error parsing command\n");
 		sendMsg(socketPtr, "0");
 	}
+}
+
+/******************************************************************************
+ * Function name: getDir
+ * Inputs: 
+ * Outputs: 
+ * Description: The function attempts to open and read the current directory
+ * Source: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
+ ******************************************************************************/
+void getDir()
+{
+	struct dirent *de;  // Pointer for directory entry 
+
+	// opendir() returns a pointer of DIR type.  
+	DIR *dr = opendir(".");
+
+	if (dr == NULL)  // opendir returns NULL if couldn't open directory 
+	{
+		error("Could not open current directory");
+	}
+
+	// Refer http://pubs.opengroup.org/onlinepubs/7990989775/xsh/readdir.html 
+	// for readdir() 
+	while ((de = readdir(dr)) != NULL)
+		printf("%s\n", de->d_name);
+
+	closedir(dr);
 }
