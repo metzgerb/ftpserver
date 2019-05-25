@@ -411,7 +411,7 @@ void getDir(char** result)
 
 		//add dir entry to result string
 		strcat(*result, de->d_name);
-		strcat(*result, '\n');
+		strcat(*result, "\n");
 	}
 
 	closedir(dr);
