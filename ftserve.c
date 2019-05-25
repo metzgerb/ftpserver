@@ -30,7 +30,7 @@ int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr, char* buffer);
 int recvMsg(int socketPtr, char* message, int messageLen);
 void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen);
-void getDir();
+void getDir(char * result, int startCapacity);
 
 int main(int argc, char *argv[])
 {
@@ -315,12 +315,20 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 			//print command requested
 			printf("List directory requested on port %s\n", dataPort);
 			
-			//TODO: get directory listing
-			getDir();
+			//allocate dynamic memory to hold directory listing in string
+			dirList = (char *)malloc(10 * sizeof(char));
+			memset(dirList, sizeof(dirList));
+
+			//store directory listing
+			getDir(&dirList, 10);
+			printf("%s\n", dirList);
 
 			//TODO: send directory listing on data connection
 			printf("Sending directory contents to %s:%s\n", client, dataPort);
+			//sendMsg(dataConn, dirList);
 
+			//TODO: free allocated string
+			free(dirList);
 		}
 		else //assume "get" command issued
 		{
@@ -365,14 +373,19 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 
 /******************************************************************************
  * Function name: getDir
- * Inputs: 
- * Outputs: 
- * Description: The function attempts to open and read the current directory
+ * Inputs: pointer to an empty dynamically allocated char *
+ * Outputs: returns nothing
+ * Description: The function attempts to open and read the current directory and
+ *		adds its contents to the char *
  * Source: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
  ******************************************************************************/
-void getDir()
+void getDir(char * result, int startCapacity)
 {
 	struct dirent *de;  // Pointer for directory entry 
+
+	//set initial string length and capacity
+	int length = 0;
+	int capacity = startCapacity;
 
 	// opendir() returns a pointer of DIR type.  
 	DIR *dr = opendir(".");
@@ -385,7 +398,20 @@ void getDir()
 	// Refer http://pubs.opengroup.org/onlinepubs/7990989775/xsh/readdir.html 
 	// for readdir() 
 	while ((de = readdir(dr)) != NULL)
-		printf("%s\n", de->d_name);
+	{
+		//update expected length
+		length += strlen(de->d_name);
+		
+		//check if resize is necessary
+		if (length > capacity - 1)
+		{
+			//double capacity
+			result = (char *)realloc(result, capacity * 2);
+		}
 
+		//add dir entry to result string
+		strcat(result, de->d_name);
+		//printf("%s\n", de->d_name);
+	}
 	closedir(dr);
 }
