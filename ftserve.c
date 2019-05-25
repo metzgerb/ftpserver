@@ -320,7 +320,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 			memset(dirList, sizeof(dirList), '\0');
 
 			//store directory listing
-			getDir(&dirList, 10);
+			getDir(dirList, 10);
 			printf("%s\n", dirList);
 
 			//TODO: send directory listing on data connection
