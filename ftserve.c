@@ -323,7 +323,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 			char fileName[256];
 			memcpy(fileName, &message[2], messageLen - 2);
 			fileName[255] = '\0';
-			print("DataPort: %s\n", dataPort);
+			printf("DataPort: %s\n", dataPort);
 			printf("File %s requested on port %s\n", "test123.txt", dataPort);
 
 			//TODO: check if file found, send if found, else send error
