@@ -28,9 +28,8 @@ void error(const char *msg);
 int setupServer(int portNumber);
 int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr, char* buffer);
-//int recvMsg(int socketPtr, char* message, int messageLen);
 int recvMsg(int socketPtr, char** message);
-void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen);
+void parseCmd(int socketPtr, char* client, char* service, char* message);
 void getDir(char** result);
 
 int main(int argc, char *argv[])
@@ -91,14 +90,15 @@ int main(int argc, char *argv[])
 		printf("Connection from %s:%s\n", client, service);
 		
 		//receive command for data connection
-		//recvMsg(controlConn, command, sizeof(command));
 		recvMsg(controlConn, &command);
 
 		//parse command and respond to client
-		parseCmd(controlConn, client, service, command, sizeof(command));
+		parseCmd(controlConn, client, service, command);
 
-		//free command
+		//free command memory
 		free(command);
+
+		//close connection
 		printf("Closing client connection\n\n");
 		close(controlConn); // Close the existing socket which is connected to the client
 		
@@ -256,36 +256,6 @@ int sendMsg(int socketPtr, char* buffer)
  * Description: The function receives a message from the client and parses it
  *		to determine what course of action to take
  ******************************************************************************/
-/*int recvMsg(int socketPtr, char* message, int messageLen)
-{
-	char buffer[BUFFER_SIZE];
-	int charsRead;
-
-	memset(buffer, '\0', sizeof(buffer));
-	memset(message, '\0', messageLen);
-
-	// Get return message from server
-	while (strstr(buffer, SENTINEL) == NULL)
-	{
-		memset(buffer, '\0', sizeof(buffer)); // Clear out the buffer again for reuse
-		charsRead = recv(socketPtr, buffer, sizeof(buffer) - 1, 0); // Read data from the socket, leaving \0 at end
-		
-		//check for socket read error
-		if (charsRead < 0)
-		{
-			error("ERROR reading from socket");
-		}
-
-		//add new characters
-		strcat(message, buffer);
-	}
-
-	//strip term sentinel from return message
-	message[strlen(message) - strlen(SENTINEL)] = '\0';
-
-	return 0;
-}*/
-
 int recvMsg(int socketPtr, char** message)
 {
 	//set initial string length, capacity and allocate memory
@@ -337,15 +307,14 @@ int recvMsg(int socketPtr, char** message)
 
 /******************************************************************************
  * Function name: parseCmd
- * Inputs: Takes the control socket and command message
- * Outputs: nothing
+ * Inputs: Takes the control socket, client hostname, service and command message
+ * Outputs: returns nothing
  * Description: The function parses the command received from the client and 
  *		either sends a directory listing, sends a file, or send an error.
  ******************************************************************************/
-void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen)
+void parseCmd(int socketPtr, char* client, char* service, char* message)
 {
 	int dataConn;
-	//char dataPort[20];
 	char* dataPort;
 	char command[3];
 	
@@ -360,7 +329,6 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 		sendMsg(socketPtr, "1");
 
 		//receive port number for data connection
-		//recvMsg(socketPtr, dataPort, sizeof(dataPort));
 		recvMsg(socketPtr, &dataPort);
 
 		//connect to client on data port
