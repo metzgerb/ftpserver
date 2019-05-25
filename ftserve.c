@@ -97,6 +97,8 @@ int main(int argc, char *argv[])
 		//parse command and respond to client
 		parseCmd(controlConn, client, service, command, sizeof(command));
 
+		//free command
+		free(command);
 		printf("Closing client connection\n\n");
 		close(controlConn); // Close the existing socket which is connected to the client
 		
@@ -412,6 +414,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 		}
 
 		//close data connection
+		free(dataPort);
 		close(dataConn);
 	}
 	else //catchall for invalid commmands
