@@ -66,13 +66,14 @@ int main(int argc, char *argv[])
 		error("ERROR No such host");
 	}
 
+	printf("Server open on %s\n", argv[1]);
+
 	//loop while accepting clients
 	while (1)
 	{
 		//begin listening on socket (up to 5 concurrent)
 		listen(socketFD, 5);
-		printf("Server open on %s\n", argv[1]);
-
+		
 		//accept a connection
 		sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
 		controlConn = accept(socketFD, (struct sockaddr *)&clientAddress, &sizeOfClientInfo); // Accept
@@ -320,26 +321,31 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 		else //assume "get" command issued
 		{
 			//parse file name
-			char fileName[256];
-			memcpy(fileName, &message[2], messageLen - 2);
-			fileName[255] = '\0';
+			//char fileName[256];
+			//memcpy(fileName, &message[2], messageLen - 2);
+			//fileName[255] = '\0';
 			printf("DataPort: %s\n", dataPort);
-			printf("File %s requested on port %s\n", fileName, dataPort);
+			printf("File \"%s\" requested on port %s\n", "fileName", dataPort);
 
 			//TODO: check if file found, send if found, else send error
-			if (1==1)
+			if (1)
 			{
+				//print file found confirmation
+				printf("Sending \"%s\" to %s:%s\n", "fileName", client, dataPort);
+
 				//send file found confirmation to control connection
-				printf("Sending %s to %s:%s\n", fileName, client, dataPort);
+				sendMsg(socketPtr, "1");
 
 				//send file through data connection
 
 			}
-			else
+			else //file was not found
 			{
-				//send error to control connection
+				//print error
 				printf("File not found. Sending error message to %s\n", client);
 
+				//send error to control connection
+				sendMsg(socketPtr, "0");
 			}
 		}
 

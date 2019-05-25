@@ -143,7 +143,7 @@ def main(server, control_port, data_port, command, file_name = ""):
         #assume "get" command used"
         else:
             #TODO: receive control response about file errors
-            file_found = True
+            file_found = int(recv_msg(control_socket, SENTINEL, 500))
             
             #check if file was found
             if file_found:
