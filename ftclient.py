@@ -122,7 +122,7 @@ def main(server, control_port, data_port, command, file_name = ""):
     
     #send command to control connection and receive response
     send_msg(control_socket, SENTINEL, command + file_name)
-    response = recv_msg(control_socket, SENTINEL, 500)
+    response = recv_msg(control_socket, SENTINEL, 10)
     
     if(response):
         #send port number for data connection to control connection
@@ -143,7 +143,7 @@ def main(server, control_port, data_port, command, file_name = ""):
         #assume "get" command used"
         else:
             #TODO: receive control response about file errors
-            file_found = int(recv_msg(control_socket, SENTINEL, 500))
+            file_found = recv_msg(control_socket, SENTINEL, 10)
             
             #check if file was found
             if file_found:

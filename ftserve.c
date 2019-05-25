@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
 		//parse command and respond to client
 		parseCmd(controlConn, client, command, sizeof(command));
 
+		printf("Closing client connection\n\n");
 		close(controlConn); // Close the existing socket which is connected to the client
 		
 	}
