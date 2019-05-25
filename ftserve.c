@@ -314,7 +314,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 			//TODO: get directory listing
 
 			//TODO: send directory listing on data connection
-			printf("Sending directory contents to %s:%s\n", client ,dataPort);
+			printf("Sending directory contents to %s:%s\n", client, dataPort);
 
 		}
 		else //assume "get" command issued
@@ -326,7 +326,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 			printf("File \"%s\" requested on port %s\n", fileName, dataPort);
 
 			//TODO: check if file found, send if found, else send error
-			if (1)
+			if (1==1)
 			{
 				//send file found confirmation to control connection
 				printf("Sending \"%s\" to %s:%s\n", fileName, client, dataPort);
@@ -345,8 +345,8 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 	}
 	else //catchall for invalid commmands
 	{
-		//send error code with error message
+		//send error code
 		printf("Error parsing command\n");
-		sendMsg(socketPtr, "0Invalid command");
+		sendMsg(socketPtr, "0");
 	}
 }

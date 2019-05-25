@@ -143,6 +143,9 @@ def main(server, control_port, data_port, command, file_name = ""):
         #assume "get" command used"
         else:
             #TODO: receive control response about file errors
+            file_found = True
+            
+            #check if file was found
             if file_found:
                 #print command being used
                 print("Receiving \"%s\" from %s:%d" % (file_name, server, data_port))
