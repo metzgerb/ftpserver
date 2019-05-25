@@ -327,13 +327,13 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 			strcpy(fileName, &message[2]);
 			fileName[255] = '\0';
 			printf("DataPort: %s\n", dataPort);//for debug
-			printf("File \"%s\" requested on port %s\n", "fileName", dataPort);
+			printf("File \"%s\" requested on port %s\n", fileName, dataPort);
 
 			//TODO: check if file found, send if found, else send error
 			if (1)
 			{
 				//print file found confirmation
-				printf("Sending \"%s\" to %s:%s\n", "fileName", client, dataPort);
+				printf("Sending \"%s\" to %s:%s\n", fileName, client, dataPort);
 
 				//send file found confirmation to control connection
 				sendMsg(socketPtr, "1");
