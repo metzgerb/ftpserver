@@ -145,8 +145,9 @@ def main(server, control_port, data_port, command, file_name = ""):
         #assume "get" command used"
         else:
             #receive control response about file errors
-            file_found = recv_msg(control_socket, SENTINEL)
-            print(file_found)
+            #source: https://stackoverflow.com/questions/26635315/conversion-of-null-terminated-string-to-int-in-python
+            file_found = int(recv_msg(control_socket, SENTINEL).strip('\x00'))
+            
             #check if file was found
             if file_found:
                 #print command being used
