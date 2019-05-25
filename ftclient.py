@@ -7,7 +7,7 @@ Description: Runs as a simple file transfer client to connect to a server and
 Author: Brian Metzger (metzgerb@oregonstate.edu)
 Course: CS372 (Spring 2019)
 Created: 2019-05-18
-Last Modified: 2019-05-24
+Last Modified: 2019-05-25
 """
 
 from socket import *
@@ -136,7 +136,7 @@ def main(server, control_port, data_port, command, file_name = ""):
             #print command being used
             print("Receiving directory structure from %s:%d" % (server, data_port))
             
-            #TODO: receive directory listing on data port
+            #receive directory listing on data port
             dir_list = recv_msg(data_socket, SENTINEL)
             
             #print directory listing
@@ -144,7 +144,7 @@ def main(server, control_port, data_port, command, file_name = ""):
         
         #assume "get" command used"
         else:
-            #TODO: receive control response about file errors
+            #receive control response about file errors
             file_found = recv_msg(control_socket, SENTINEL)
             
             #check if file was found

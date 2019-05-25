@@ -6,8 +6,10 @@
 * Author: Brian Metzger (metzgerb@oregonstate.edu)
 * Course: CS372 (Spring 2019)
 * Created: 2019-05-18
-* Last Modified: 2019-05-24
+* Last Modified: 2019-05-25
 ******************************************************************************/
+
+#define _GNU_SOURCE //for d_type constants of dirent
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +33,7 @@ int sendMsg(int socketPtr, char* buffer);
 int recvMsg(int socketPtr, char** message);
 void parseCmd(int socketPtr, char* client, char* service, char* message);
 void getDir(char** result);
+void isInDir(char* fileName);
 
 int main(int argc, char *argv[])
 {
@@ -344,7 +347,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message)
 			char* dirList;
 			getDir(&dirList);
 
-			//TODO: send directory listing on data connection
+			//send directory listing on data connection
 			printf("Sending directory contents to %s:%s\n", client, dataPort);
 			sendMsg(dataConn, dirList);
 
@@ -360,7 +363,7 @@ void parseCmd(int socketPtr, char* client, char* service, char* message)
 			printf("File \"%s\" requested on port %s\n", fileName, dataPort);
 
 			//TODO: check if file found, send if found, else send error
-			if (0)
+			if (isInDir(fileName))
 			{
 				//print file found confirmation
 				printf("Sending \"%s\" to %s:%s\n", fileName, client, dataPort);
@@ -445,4 +448,40 @@ void getDir(char** result)
 	(*result)[strlen(*result)-1] = '\0';
 
 	closedir(dr);
+}
+
+/******************************************************************************
+ * Function name: isInDir
+ * Inputs: takes file name to search
+ * Outputs: returns true or false value
+ * Description: The function attempts to open and read the current directory and
+ *		checks for a specific file.
+ * Partial Source: https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
+ ******************************************************************************/
+void isInDir(char* fileName)
+{
+	struct dirent *de;  // Pointer for directory entry 
+
+	// opendir() returns a pointer of DIR type.  
+	DIR *dr = opendir(".");
+
+	if (dr == NULL)  // opendir returns NULL if couldn't open directory 
+	{
+		error("Could not open current directory");
+	}
+
+	// Refer http://pubs.opengroup.org/onlinepubs/7990989775/xsh/readdir.html 
+	// for readdir() 
+	while ((de = readdir(dr)) != NULL)
+	{
+		//check if entry is file type and name matches searched name
+		if (de->d_type == DT_REG && strcmp(de->d_name, fileName))
+		{
+			closedir(dr);
+			return 1;
+		}
+	}
+
+	closedir(dr);
+	return 0; //file not found
 }
