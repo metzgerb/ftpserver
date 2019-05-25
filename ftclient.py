@@ -60,15 +60,15 @@ def recv_file(socket, sentinel):
     #send confirmation
     send_msg(socket, sentinel, "1")
     
+    #initialize binary data variable
     file_data = b""
     
     #receive file until max number of bytes received
     while(sys.getsizeof(file_data) < file_size):
         file_data += socket.recv(1024)
-    print("Size of data received: %d" % sys.getsizeof(file_data))
-    print("%s" % file_data.decode())
+
     return file_data
-    
+
 
 """
 Function Name: save_file
@@ -76,8 +76,17 @@ Description: attempts to save file downloaded from server
 Inputs: takes string containing the contents of the received file
 Outputs: returns an integer indicating success or failure
 """
-def save_file(file_data):
-    return 0
+def save_file(file_data, file_name):
+    #TODO: check if file already exists
+    
+    #create and open file for binary writing
+    saved_file = open(file_name, "wb")
+    
+    #write file_data to file
+    saved_file.write(file_data)
+    
+    #close file
+    saved_file.close()
 
 
 """
@@ -161,6 +170,9 @@ def main(server, control_port, data_port, command, file_name = ""):
                 
                 #receive file on data port
                 file_data = recv_file(data_socket, SENTINEL)
+                
+                #save file
+                save_file(file_data, file_name)
                 
                 #print confirmation of completed transfer
                 print("File Transfer complete")

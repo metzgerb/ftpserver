@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 	socklen_t sizeOfClientInfo;
 	struct sockaddr_in clientAddress;
 
-	//char command[MAX_BUFFER];
 	char* command;
 	char client[MAX_BUFFER];
 	char service[20];
@@ -512,11 +511,9 @@ void sendDataFile(int socketPtr, char* fileName)
 	stat(fileName, &st);
 	off_t fileSize = st.st_size;
 	
-	
 	//convert fileSize to string for sending
 	char sizeString[MAX_BUFFER];
 	snprintf(sizeString, MAX_BUFFER,"%lu", fileSize);
-	printf("%s\n", sizeString); //for debug
 
 	//send file size to client on data connection
 	sendMsg(socketPtr, sizeString);
@@ -529,16 +526,15 @@ void sendDataFile(int socketPtr, char* fileName)
 	{
 		error("Client error, not ready for file");
 	}
-	printf("Response recd: %s\n", response);
+	
 	free(response);
+	
 	int dataSent;
+	
 	//read through file and send chunks to client
 	while ((dataSent = fread(buffer, 1, sizeof(buffer)-1, fileToSend)) > 0)
 	{
-		printf("sending %d bytes of data\n", dataSent); //for debug
-		printf("%s\n\n", buffer);
 		//send buffer to client on data connection
-		//sendMsg(socketPtr, buffer);
 		send(socketPtr, buffer, dataSent,0);
 
 		//clear out buffer before each use
