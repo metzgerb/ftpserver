@@ -243,6 +243,7 @@ int connectServer(char* server, int portNumber)
 int sendMsg(int socketPtr, char* buffer)
 {
 	char* message = malloc((strlen(buffer) + strlen(SENTINEL) + 1 ) * sizeof(char));
+	memset(message, sizeof(message), '\0');
 
 	//copy sentinel to message
 	strcpy(message, buffer);
@@ -415,6 +416,7 @@ void getDir(char** result)
 	int capacity = 10;
 	*result = malloc(10 * sizeof(char));
 	memset(*result, capacity, '\0');
+	strcpy(result,"");
 
 	// opendir() returns a pointer of DIR type.  
 	DIR *dr = opendir(".");
