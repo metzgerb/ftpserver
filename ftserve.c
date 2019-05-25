@@ -533,7 +533,7 @@ void sendDataFile(int socketPtr, char* fileName)
 	free(response);
 	int dataSent;
 	//read through file and send chunks to client
-	while (dataSent = fread(buffer, sizeof(buffer), 1, fileToSend) > 0)
+	while ((dataSent = fread(buffer, 1, sizeof(buffer), fileToSend)) > 0)
 	{
 		printf("sending %d bytes of data\n", dataSent); //for debug
 		//send buffer to client on data connection
