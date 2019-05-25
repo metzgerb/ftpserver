@@ -13,23 +13,6 @@ Last Modified: 2019-05-25
 from socket import *
 import sys
 
-
-"""
-Function Name: send_msg
-Description: sends a message (user prompted) to the server
-Inputs: takes a socket file descriptor, and a sentinel
-Outputs: returns success code or quit code
-
-def send_msg(socket, sentinel):
-    #get input from user
-    message = input()
-            
-    #send message back
-    message = message + sentinel
-    socket.sendall(message.encode())
-    return 0
-"""
-
 """
 Function Name: send_msg
 Description: sends a message to the server
@@ -80,8 +63,8 @@ def recv_file(socket, sentinel):
     file_data = ""
     
     #receive file until max number of bytes received
-    #while(sys.getsizeof(file_data) < file_size):
-        #file_data += recv_msg(socket,sentinel)
+    while(sys.getsizeof(file_data) < file_size):
+        file_data += recv_msg(socket,sentinel)
     
     return file_data
     

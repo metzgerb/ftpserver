@@ -531,7 +531,7 @@ void sendDataFile(int socketPtr, char* fileName)
 	}
 	printf("Response recd: %s\n", response);
 	free(response);
-	/*
+	
 	//read through file and send chunks to client
 	while (fread(buffer, 1, sizeof(buffer), fileToSend) > 0)
 	{
@@ -540,7 +540,7 @@ void sendDataFile(int socketPtr, char* fileName)
 
 		//clear out buffer before each use
 		memset(buffer, sizeof(buffer), '\0');
-	}*/
+	}
 
 	//close file
 	fclose(fileToSend);
