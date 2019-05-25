@@ -49,9 +49,9 @@ def recv_msg(socket, sentinel):
 
 """
 Function Name: recv_file
-Description: waits to receive a filesize from the server
+Description: waits to receive a filesize from the server then receives that many bytes from the server
 Inputs: takes a socket file descriptor
-Outputs: returns received message
+Outputs: returns received file data
 """
 def recv_file(socket, sentinel):
     #receive filesize
@@ -65,7 +65,7 @@ def recv_file(socket, sentinel):
     #receive file until max number of bytes received
     while(sys.getsizeof(file_data) < file_size):
         file_data += recv_msg(socket,sentinel)
-    
+    print("Size of data received: %d" % sys.getsizeof(file_data))
     return file_data
     
 
@@ -75,7 +75,7 @@ Description: attempts to save file downloaded from server
 Inputs: takes string containing the contents of the received file
 Outputs: returns an integer indicating success or failure
 """
-def save_file(contents):
+def save_file(file_data):
     return 0
 
 
