@@ -398,10 +398,10 @@ void getDir(char** result)
 	while ((de = readdir(dr)) != NULL)
 	{
 		//update expected length
-		length += strlen(de->d_name);
+		length += strlen(de->d_name)+1;
 		
 		//check if resize is necessary
-		if (length > capacity - 2)
+		if (length > capacity - 1)
 		{
 			//double capacity
 			capacity *= 2;
@@ -413,6 +413,9 @@ void getDir(char** result)
 		strcat(*result, de->d_name);
 		strcat(*result, "\n");
 	}
+	
+	//remove final newline
+	*result[length-1] = '\0';
 
 	closedir(dr);
 }
