@@ -401,7 +401,7 @@ void getDir(char** result)
 		length += strlen(de->d_name);
 		
 		//check if resize is necessary
-		if (length > capacity - 1)
+		if (length > capacity - 2)
 		{
 			//double capacity
 			capacity *= 2;
@@ -411,7 +411,7 @@ void getDir(char** result)
 
 		//add dir entry to result string
 		strcat(*result, de->d_name);
-		//printf("%s\n", de->d_name);
+		strcat(*result, '\n');
 	}
 
 	closedir(dr);
