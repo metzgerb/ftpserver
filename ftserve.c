@@ -533,13 +533,13 @@ void sendDataFile(int socketPtr, char* fileName)
 	free(response);
 	int dataSent;
 	//read through file and send chunks to client
-	while ((dataSent = fread(buffer, 1, sizeof(buffer), fileToSend)) > 0)
+	while ((dataSent = fread(buffer, 1, sizeof(buffer)-1, fileToSend)) > 0)
 	{
 		printf("sending %d bytes of data\n", dataSent); //for debug
 		printf("%s\n\n", buffer);
 		//send buffer to client on data connection
 		//sendMsg(socketPtr, buffer);
-		send(socketPtr, buffer, sizeof(buffer),0);
+		send(socketPtr, buffer, dataSent,0);
 
 		//clear out buffer before each use
 		memset(buffer, sizeof(buffer), '\0');
