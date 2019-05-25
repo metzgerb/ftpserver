@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
 		
 		//receive command for data connection
 		recvMsg(controlConn, command, sizeof(command));
-		printf("command recd: %s\n", command);
 
 		//parse command and respond to client
 		parseCmd(controlConn, client, command, sizeof(command));
