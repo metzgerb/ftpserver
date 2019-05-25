@@ -346,9 +346,9 @@ void parseCmd(int socketPtr, char* client, char* service, char* message)
 
 			//TODO: send directory listing on data connection
 			printf("Sending directory contents to %s:%s\n", client, dataPort);
-			//sendMsg(dataConn, dirList);
+			sendMsg(dataConn, dirList);
 
-			//TODO: free allocated string
+			//free allocated memory
 			free(dirList);
 		}
 		else //assume "get" command issued

@@ -137,8 +137,10 @@ def main(server, control_port, data_port, command, file_name = ""):
             print("Receiving directory structure from %s:%d" % (server, data_port))
             
             #TODO: receive directory listing on data port
+            dir_list = recv_msg(data_socket, SENTINEL)
             
             #print directory listing
+            print(dir_list)
         
         #assume "get" command used"
         else:
