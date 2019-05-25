@@ -20,7 +20,7 @@
 #include <dirent.h> //for directory listing
 
 #define BUFFER_SIZE 256
-#define MAX_BUFFER 500
+#define MAX_BUFFER 1024
 #define SENTINEL "@!@"
 
 //function declarations
@@ -28,7 +28,8 @@ void error(const char *msg);
 int setupServer(int portNumber);
 int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr, char* buffer);
-int recvMsg(int socketPtr, char* message, int messageLen);
+//int recvMsg(int socketPtr, char* message, int messageLen);
+int recvMsg(int socketPtr, char** message);
 void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen);
 void getDir(char** result);
 
@@ -38,7 +39,8 @@ int main(int argc, char *argv[])
 	socklen_t sizeOfClientInfo;
 	struct sockaddr_in clientAddress;
 
-	char command[MAX_BUFFER];
+	//char command[MAX_BUFFER];
+	char* command;
 	char client[MAX_BUFFER];
 	char service[20];
 	
@@ -89,7 +91,8 @@ int main(int argc, char *argv[])
 		printf("Connection from %s:%s\n", client, service);
 		
 		//receive command for data connection
-		recvMsg(controlConn, command, sizeof(command));
+		//recvMsg(controlConn, command, sizeof(command));
+		recvMsg(controlConn, &command);
 
 		//parse command and respond to client
 		parseCmd(controlConn, client, service, command, sizeof(command));
@@ -210,36 +213,6 @@ int connectServer(char* server, int portNumber)
  * Description: The function sends a message to the client. It is generic and
  *		can be used to send any type of message
  ******************************************************************************/
-/*int sendMsg(int socketPtr, char* buffer)
-{
-	char message[MAX_BUFFER];
-	
-	//copy sentinel to message
-	strcpy(message, buffer);
-	strcat(message, SENTINEL);
-
-	// Send message to server
-	long length = strlen(message) + 1;
-	char* sendPtr = message;
-
-	//loop and send message until all is sent
-	//modified from source: https://stackoverflow.com/questions/13479760/c-socket-recv-and-send-all-data
-	while (length > 0)
-	{
-		long s = send(socketPtr, sendPtr, length, 0);
-
-		//check for write error
-		if (s < 0)
-		{
-			error("ERROR writing to socket");
-		}
-		sendPtr += s;
-		length -= s;
-	}
-
-	return 0;
-}*/
-
 int sendMsg(int socketPtr, char* buffer)
 {
 	char* message = malloc((strlen(buffer) + strlen(SENTINEL) + 1 ) * sizeof(char));
@@ -281,7 +254,7 @@ int sendMsg(int socketPtr, char* buffer)
  * Description: The function receives a message from the client and parses it
  *		to determine what course of action to take
  ******************************************************************************/
-int recvMsg(int socketPtr, char* message, int messageLen)
+/*int recvMsg(int socketPtr, char* message, int messageLen)
 {
 	char buffer[BUFFER_SIZE];
 	int charsRead;
@@ -309,6 +282,54 @@ int recvMsg(int socketPtr, char* message, int messageLen)
 	message[strlen(message) - strlen(SENTINEL)] = '\0';
 
 	return 0;
+}*/
+
+int recvMsg(int socketPtr, char** message)
+{
+	//set initial string length, capacity and allocate memory
+	int length = 0;
+	int capacity = 10;
+	*message = malloc(capacity * sizeof(char));
+	memset(*message, capacity, '\0');
+	strcpy(*message, "");
+	
+	int charsRead;
+	char buffer[BUFFER_SIZE];
+	memset(buffer, '\0', sizeof(buffer));
+
+	// Get return message from server
+	while (strstr(buffer, SENTINEL) == NULL)
+	{
+		memset(buffer, '\0', sizeof(buffer)); // Clear out the buffer again for reuse
+		charsRead = recv(socketPtr, buffer, sizeof(buffer) - 1, 0); // Read data from the socket, leaving \0 at end
+
+		//check for socket read error
+		if (charsRead < 0)
+		{
+			free(*message);
+			error("ERROR reading from socket");
+		}
+
+		//update expected length
+		length += charsRead + 1;
+
+		//check if resize is necessary
+		if (length > capacity - 1)
+		{
+			//double capacity
+			capacity *= 2;
+			//reallocate memory
+			*message = (char *)realloc(*message, capacity);
+		}
+
+		//add new characters
+		strcat(message, buffer);
+	}
+
+	//strip term sentinel from return message
+	(*message)[strlen(*message) - strlen(SENTINEL)] = '\0';
+
+	return 0;
 }
 
 
@@ -322,7 +343,8 @@ int recvMsg(int socketPtr, char* message, int messageLen)
 void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen)
 {
 	int dataConn;
-	char dataPort[20];
+	//char dataPort[20];
+	char* dataPort;
 	char command[3];
 	
 	//separate command from file name
@@ -336,8 +358,9 @@ void parseCmd(int socketPtr, char* client, char* service, char* message, int mes
 		sendMsg(socketPtr, "1");
 
 		//receive port number for data connection
-		recvMsg(socketPtr, dataPort, sizeof(dataPort));
-		
+		//recvMsg(socketPtr, dataPort, sizeof(dataPort));
+		recvMsg(socketPtr, &dataPort);
+
 		//connect to client on data port
 		dataConn = connectServer(client, atoi(dataPort));
 		
