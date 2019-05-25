@@ -416,7 +416,7 @@ void getDir(char** result)
 	int capacity = 10;
 	*result = malloc(10 * sizeof(char));
 	memset(*result, capacity, '\0');
-	strcpy(result,"");
+	strcpy(*result,"");
 
 	// opendir() returns a pointer of DIR type.  
 	DIR *dr = opendir(".");
