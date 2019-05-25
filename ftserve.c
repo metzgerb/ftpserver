@@ -28,7 +28,7 @@ int setupServer(int portNumber);
 int connectServer(char* server, int portNumber);
 int sendMsg(int socketPtr, char* buffer);
 int recvMsg(int socketPtr, char* message, int messageLen);
-void parseCmd(int socketPtr, char* client, char* message, int messageLen);
+void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen);
 
 
 int main(int argc, char *argv[])
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 		recvMsg(controlConn, command, sizeof(command));
 
 		//parse command and respond to client
-		parseCmd(controlConn, client, command, sizeof(command));
+		parseCmd(controlConn, client, service, command, sizeof(command));
 
 		printf("Closing client connection\n\n");
 		close(controlConn); // Close the existing socket which is connected to the client
@@ -286,7 +286,7 @@ int recvMsg(int socketPtr, char* message, int messageLen)
  * Description: The function parses the command received from the client and 
  *		either sends a directory listing, sends a file, or send an error.
  ******************************************************************************/
-void parseCmd(int socketPtr, char* client, char* message, int messageLen)
+void parseCmd(int socketPtr, char* client, char* service, char* message, int messageLen)
 {
 	int dataConn;
 	char dataPort[20];
@@ -304,7 +304,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 
 		//receive port number for data connection
 		recvMsg(socketPtr, dataPort, sizeof(dataPort));
-		printf("DataPort: %s\n", dataPort); //for debug
+		
 		//connect to client on data port
 		dataConn = connectServer(client, atoi(dataPort));
 		
@@ -325,12 +325,11 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 			//parse file name
 			char fileName[256];
 			strcpy(fileName, &message[2]);
-			fileName[255] = '\0';
-			printf("DataPort: %s\n", dataPort);//for debug
+			fileName[255] = '\0'; //for safety
 			printf("File \"%s\" requested on port %s\n", fileName, dataPort);
 
 			//TODO: check if file found, send if found, else send error
-			if (1)
+			if (0)
 			{
 				//print file found confirmation
 				printf("Sending \"%s\" to %s:%s\n", fileName, client, dataPort);
@@ -344,7 +343,7 @@ void parseCmd(int socketPtr, char* client, char* message, int messageLen)
 			else //file was not found
 			{
 				//print error
-				printf("File not found. Sending error message to %s\n", client);
+				printf("File not found. Sending error message to %s:%s\n", client, service);
 
 				//send error to control connection
 				sendMsg(socketPtr, "0");
