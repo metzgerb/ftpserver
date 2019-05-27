@@ -79,13 +79,14 @@ Outputs: returns nothing
 def save_file(file_data, file_name):
     #check if file already exists
     i = 1
+    save_name = file_name
     #loop until unused file name is found
     while(os.path.isfile(file_name)):
-        file_name = "copy(" + str(i) + ") - " + file_name
+        save_name = "copy(" + str(i) + ") - " + file_name
         i += 1
         
     #create and open file for binary writing
-    saved_file = open(file_name, "wb")
+    saved_file = open(save_name, "wb")
     
     #write file_data to file
     saved_file.write(file_data)
