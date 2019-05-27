@@ -82,7 +82,7 @@ def save_file(file_data, file_name):
     #loop until unused file name is found
     while(os.path.isfile(file_name)):
         file_name = "copy(" + str(i) + ") - " + file_name
-        i++
+        i += 1
         
     #create and open file for binary writing
     saved_file = open(file_name, "wb")
