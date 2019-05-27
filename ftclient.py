@@ -7,7 +7,7 @@ Description: Runs as a simple file transfer client to connect to a server and
 Author: Brian Metzger (metzgerb@oregonstate.edu)
 Course: CS372 (Spring 2019)
 Created: 2019-05-18
-Last Modified: 2019-05-25
+Last Modified: 2019-05-27
 """
 
 from socket import *
@@ -50,13 +50,13 @@ def recv_msg(socket, sentinel):
 """
 Function Name: recv_file
 Description: waits to receive a filesize from the server then receives that many bytes from the server
-Inputs: takes a socket file descriptor
-Outputs: returns received file data
+Inputs: takes a socket file descriptor and a sentinel
+Outputs: returns received file data (binary format)
 """
 def recv_file(socket, sentinel):
     #receive filesize
     file_size = int(recv_msg(socket, sentinel).strip('\x00'))
-    print("file size: %d" % file_size)
+    print("file size: %d" % file_size) #debug
     #send confirmation
     send_msg(socket, sentinel, "1")
     
@@ -73,12 +73,16 @@ def recv_file(socket, sentinel):
 """
 Function Name: save_file
 Description: attempts to save file downloaded from server
-Inputs: takes string containing the contents of the received file
-Outputs: returns an integer indicating success or failure
+Inputs: takes string containing the binary data of the file and the file name
+Outputs: returns nothing
 """
 def save_file(file_data, file_name):
-    #TODO: check if file already exists
-    
+    #check if file already exists
+    i = 1
+    #loop until unused file name is found
+    while(os.path.isfile(file_name)):
+        file_name = "copy(" + i + ") - " + file_name
+        
     #create and open file for binary writing
     saved_file = open(file_name, "wb")
     
