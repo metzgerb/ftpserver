@@ -81,7 +81,8 @@ def save_file(file_data, file_name):
     i = 1
     #loop until unused file name is found
     while(os.path.isfile(file_name)):
-        file_name = "copy(" + i + ") - " + file_name
+        file_name = "copy(" + str(i) + ") - " + file_name
+        i++
         
     #create and open file for binary writing
     saved_file = open(file_name, "wb")
